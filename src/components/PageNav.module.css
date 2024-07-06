@@ -1,11 +1,12 @@
+/* PageNav.module.css */
 .nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.nav ul {
-  list-style: none;
+.navLinks {
+  margin-left: auto; /* Ensure the nav links are pushed to the right */
   display: flex;
   align-items: center;
   gap: 4rem;
@@ -20,6 +21,11 @@
   font-weight: 600;
 }
 
+.nav a:hover,
+.nav a:focus {
+  color: var(--color-brand--2);
+}
+
 /* CSS Modules feature */
 .nav a:global(.active) {
   color: var(--color-brand--2);
@@ -31,4 +37,27 @@ a.ctaLink:visited {
   color: var(--color-dark--0);
   padding: 0.8rem 2rem;
   border-radius: 7px;
+}
+
+.nav .dropdown-menu {
+  background-color: var(--color-light--1);
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.nav .dropdown-item {
+  color: var(--color-dark--0);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.nav .dropdown-item:hover,
+.nav .dropdown-item:focus {
+  background-color: var(--color-brand--2);
+  color: var(--color-light--1);
+}
+
+.nav .dropdown-toggle::after {
+  display: none;
 }
