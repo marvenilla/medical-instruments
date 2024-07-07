@@ -21,11 +21,20 @@ function PageNav() {
           >
             <NavDropdown.Item
               as={NavLink}
+              to="/sales"
+              className={styles.dropdownItem}
+            >
+              Sales
+            </NavDropdown.Item>
+
+            <NavDropdown.Item
+              as={NavLink}
               to="/work-order"
               className={styles.dropdownItem}
             >
               Work Orders
             </NavDropdown.Item>
+
             <NavDropdown.Item
               as={NavLink}
               to="/inventory"
