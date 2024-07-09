@@ -8,10 +8,9 @@ export default function Homepage() {
       <PageNav />
       <section>
         <h1>
-          You give care to people.
+          We give care to people.
           <br />
-          Medical Instruments keeps track of your needs. Lorem ipsum dolor sit
-          amet.
+          Medical Instruments keeps track of the community needs.
         </h1>
         <h2>
           A web app that tracks.. lorem ipsum dolor sit amet, consectetur
