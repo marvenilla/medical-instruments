@@ -1,0 +1,71 @@
+.order-item {
+  background-color: #ffffff; /* White background */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),  /* Subtle shadow at the bottom */
+    0 -2px 4px rgba(0, 0, 0, 0.2); /* Darker shadow at the top */
+  padding: 20px; /* Padding inside the container */
+  margin: 5px 5px; /* Increased margin around each item for more space */
+  width: calc(100% - 20px); /* Width of the container with margins */
+  max-width: 1200px; /* Max width for the container */
+}
+
+.order-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; /* Space between header and content */
+}
+
+.order-date, .order-amount {
+  font-size: 16px; /* Font size for date and amount */
+  color: #333; /* Darker text color for better readability */
+}
+
+.order-status {
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-size: 16px;
+}
+
+.order-status.shipped {
+  color: green; /* Green text for shipped status */
+}
+
+.order-status.pending {
+  color: rgb(248, 153, 10); /* Orange text for pending status */
+}
+
+.order-status.canceled {
+  color: red; /* Red text for canceled status */
+}
+
+.order-item-content {
+  margin-top: 10px; /* Space between content lines */
+}
+
+.order-item-content .order-id {
+  font-size: 18px; /* Larger font for order ID */
+  color: #000; /* Darker color for emphasis */
+  margin-bottom: 5px; /* Space between ID and description */
+  cursor: pointer; /* Change cursor to pointer on hover */
+  transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+.order-item-content .order-id:hover {
+  color: red; /* Change color to red on hover */
+}
+
+.order-item-content .order-description {
+  font-size: 16px; /* Font size for description */
+  color: #333; /* Darker text color for better readability */
+}
+
+hr {
+  border: none;
+  border-top: 1px solid black;
+  margin: 10px 0;
+}
+
