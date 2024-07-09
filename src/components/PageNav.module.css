@@ -15,7 +15,7 @@
 .nav a:link,
 .nav a:visited {
   text-decoration: none;
-  color: var(--color-light--2);
+  color: black !important; /* Override global CSS and ensure font is black */
   text-transform: uppercase;
   font-size: 1.5rem;
   font-weight: 600;
@@ -23,18 +23,18 @@
 
 .nav a:hover,
 .nav a:focus {
-  color: var(--color-brand--2);
+  color: black !important; /* Ensure font is black on hover and focus */
 }
 
 /* CSS Modules feature */
 .nav a:global(.active) {
-  color: var(--color-brand--2);
+  color: black !important; /* Ensure active link font is black */
 }
 
 a.ctaLink:link,
 a.ctaLink:visited {
   background-color: var(--color-brand--2);
-  color: var(--color-dark--0);
+  color: black !important; /* Ensure CTA link font is black */
   padding: 0.8rem 2rem;
   border-radius: 7px;
 }
@@ -46,7 +46,7 @@ a.ctaLink:visited {
 }
 
 .nav .dropdown-item {
-  color: var(--color-dark--0);
+  color: black !important; /* Ensure dropdown item font is black */
   font-size: 1.5rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -55,7 +55,7 @@ a.ctaLink:visited {
 .nav .dropdown-item:hover,
 .nav .dropdown-item:focus {
   background-color: var(--color-brand--2);
-  color: var(--color-light--1);
+  color: black !important; /* Ensure font is black on hover and focus */
 }
 
 .nav .dropdown-toggle::after {
