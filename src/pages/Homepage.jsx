@@ -10,7 +10,7 @@ export default function Homepage() {
         <h1>
           We give care to people.
           <br />
-          Medical Instruments keeps track of the community needs.
+          Medical Instrument keeps track of the community needs.
         </h1>
         <h2>
           A web app that tracks.. lorem ipsum dolor sit amet, consectetur
