@@ -1,3 +1,10 @@
+/* .field-filter {
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 10px
+} */
+
 .order-list {
   display: flex;
   flex-direction: column;
@@ -5,15 +12,25 @@
 }
 
 .order-filters{
+  color: #000;
   display: flex;
   justify-content: space-between;
   max-width: 1200px;
   margin: 10px 0;
 }
 
-.field-filter {
+.title-filters{
   color: #000;
-  display: flex;
-  align-items: center;
-  gap: 10px
+  font-size: 15pt;
+  margin: 10px 0;
+  font-weight: 600;
+}
+
+.order-form{
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+}
+
+.order-form > * {
+  margin: 5px 10px;
 }

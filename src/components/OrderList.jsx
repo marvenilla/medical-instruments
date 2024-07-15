@@ -44,6 +44,8 @@ import { useState } from 'react';
 import OrderItem from '../components/OrderItem';
 import './OrderList.css';
 import { isSameDate } from '../helpers/dates';
+import { Dropdown, Input } from './layout';
+import { Link } from 'react-router-dom';
 
 const orders = [
   {
@@ -101,40 +103,43 @@ const OrderList = () => {
   });
   return (
     <>
+      <div className="order-form">
+        <Input label="Client" />
+        <Input label="Product name" />
+        <Input label="Family" />
+        <Input label="Sub-family" />
+        <Input label="Order quantity" />
+        <Dropdown label="Partial Shipment" options={['Yes', 'No']} />
+        <Input label="Bal due" />
+        <Input label="Order date" />
+        <Input label="Ship Date" type="date" />
+        <Input label="Lead Time" />
+      </div>
+      <Link to="/work-order" className="btn btn-primary btn-lg">
+        Go to Work Orders
+      </Link>
+
+      <h4 className="title-filters">Filters</h4>
       <div className="order-filters">
-        <div className="field-filter">
-          <label className="form-label">ID:</label>
-          <input
-            type="text"
-            className="form-control form-control-lg"
-            value={selectedId}
-            onChange={handleIdChange}
-            placeholder="Filter by ID"
-          />
-        </div>
+        <Input
+          label="ID:"
+          placeholder="Filter by ID"
+          value={selectedId}
+          onChange={handleIdChange}
+        />
+        <Dropdown
+          label="Status:"
+          options={['All', 'Shipped', 'Pending']}
+          value={selectedStatus}
+          onChange={handleStatusChange}
+        />
 
-        <div className="field-filter">
-          <label className="form-label">Status:</label>
-          <select
-            className="form-select form-select-lg"
-            value={selectedStatus}
-            onChange={handleStatusChange}
-          >
-            <option value="All">All</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Pending">Pending</option>
-          </select>
-        </div>
-
-        <div className="field-filter">
-          <label className="form-label">Date:</label>
-          <input
-            type="date"
-            className="form-control form-control-lg"
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
-        </div>
+        <Input
+          label="Date:"
+          value={selectedDate}
+          onChange={handleDateChange}
+          type="date"
+        />
       </div>
       <div className="order-list">
         {filteredOrders.map((order) => (
