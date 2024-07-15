@@ -3,3 +3,17 @@
   flex-direction: column;
   gap: 15px;
 }
+
+.order-filters{
+  display: flex;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 10px 0;
+}
+
+.field-filter {
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 10px
+}
