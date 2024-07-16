@@ -1,3 +1,4 @@
+// App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Sales from "./pages/Sales";
 import Shipping from "./pages/Shipping";
@@ -14,7 +15,7 @@ function App() {
         <Route path="sales" element={<Sales />} />
         <Route path="shipping" element={<Shipping />} />
         <Route path="/login" element={<Login />} />
-        <Route path="app" element={<AppLayout />}></Route>
+        <Route path="app" element={<AppLayout />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>

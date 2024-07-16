@@ -1,56 +1,17 @@
-// import './OrderItem.css';
-// import PropTypes from 'prop-types';
-
-// const OrderItem = ({ order }) => {
-//   return (
-//     <div className="order-item">
-//       <div className="order-item-content">
-//         <div>Date requested {order.date}</div>
-//         <div>Amount: {order.currency} {order.amount}</div>
-//         <div>
-//           <strong>{order.id}</strong> - {order.description}
-//         </div>
-//       </div>
-//       <span className={`order-status ${order.status.toLowerCase()}`}>
-//         {order.status}
-//       </span>
-//     </div>
-//   );
-// };
-
-// OrderItem.propTypes = {
-//   order: PropTypes.shape({
-//     id: PropTypes.string.isRequired,
-//     date: PropTypes.string.isRequired,
-//     amount: PropTypes.string.isRequired,
-//     currency: PropTypes.string.isRequired,
-//     description: PropTypes.string.isRequired,
-//     purchaseOrder: PropTypes.string.isRequired,
-//     status: PropTypes.string.isRequired,
-//   }).isRequired,
-// };
-
-// export default OrderItem;
-
-import './OrderItem.css';
-import PropTypes from 'prop-types';
+// import React from "react";
+import PropTypes from "prop-types";
+import "./OrderItem.css";
 
 const OrderItem = ({ order }) => {
   return (
-    <div className="order-item">
-      <div className="order-item-header">
-        <div className="order-date">Date requested: {order.date}</div>
-        <div className="order-amount">Amount: {order.currency} {order.amount}</div>
-        <span className={`order-status ${order.status.toLowerCase()}`}>
-          {order.status}
-        </span>
-      </div>
-      <hr />
-      <div className="order-item-content">
-        <div className="order-id"><strong>{order.id}</strong></div>
-        <div className="order-description">{order.description}</div>
-      </div>
-    </div>
+    <tr>
+      <td>{order.id}</td>
+      <td>{order.date}</td>
+      <td>{order.description}</td>
+      <td>{order.shipTo}</td>
+      <td>CAD {order.amount.toFixed(2)}</td>
+      <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
+    </tr>
   );
 };
 
@@ -58,13 +19,11 @@ OrderItem.propTypes = {
   order: PropTypes.shape({
     id: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
-    amount: PropTypes.string.isRequired,
-    currency: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    purchaseOrder: PropTypes.string.isRequired,
+    amount: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    shipTo: PropTypes.string.isRequired,
   }).isRequired,
 };
 
 export default OrderItem;
-
