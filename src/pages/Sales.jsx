@@ -7,6 +7,7 @@ const Sales = () => {
   const [orderHistory, setOrderHistory] = useState("30 days");
   const [sortBy, setSortBy] = useState("Order Date (Newest)");
   const [searchText, setSearchText] = useState("");
+  const [statusData, setStatusData] = useState([]);
 
   useEffect(() => {
     const dummyOrders = [
@@ -162,6 +163,21 @@ const Sales = () => {
   const handleSortByChange = (e) => setSortBy(e.target.value);
   const handleSearchTextChange = (e) => setSearchText(e.target.value);
 
+  const filterByStatus = (status) => {
+    if (status === "All") {
+      setOrders(orders);
+      setStatusData(orders)
+    } else {
+      const filtered = orders.filter((order) => order.status === status);
+      setStatusData(filtered);
+    }
+  };
+
+  const statusCounts = orders.reduce((acc, order) => {
+    acc[order.status] = (acc[order.status] || 0) + 1;
+    return acc;
+  }, {});
+  
   const filterOrders = () => {
     let filteredOrders = orders;
 
@@ -184,8 +200,13 @@ const Sales = () => {
     const cutoffDate = new Date(now.setDate(now.getDate() - daysAgo));
     filteredOrders = filteredOrders.filter((order) => new Date(order.date) >= cutoffDate);
 
+    //Filter by status selection
+    if(statusData.length > 0){
+      filteredOrders = statusData;
+    }
     // Filter by search text
     if (searchText) {
+      // setStatusData([])
       filteredOrders = filteredOrders.filter((order) =>
         order.id.toLowerCase().includes(searchText.toLowerCase())
       );
@@ -215,7 +236,7 @@ const Sales = () => {
   return (
     <div>
       <PageNav />
-      <div className="container mt-4">
+      <div className="container mt-4 fs-4">
       <h2 className="mb-4">SALES ORDER</h2>
       <div className="row mb-3">
         <div className="col-md-6">
@@ -223,7 +244,7 @@ const Sales = () => {
           <label htmlFor="orderHistory" className="form-label">
             Order History
           </label>
-          <select id="orderHistory" onChange={handleOrderHistoryChange} value={orderHistory} className="form-select">
+          <select id="orderHistory" onChange={handleOrderHistoryChange} value={orderHistory} className="form-select fs-4">
             <option value="30 days">30 days of order history</option>
             <option value="60 days">60 days of order history</option>
             <option value="90 days">90 days of order history</option>
@@ -233,7 +254,7 @@ const Sales = () => {
           <label htmlFor="sortBy" className="form-label">
             Sort By
           </label>
-          <select id="sortBy" value={sortBy} onChange={handleSortByChange} className="form-select">
+          <select id="sortBy" value={sortBy} onChange={handleSortByChange} className="form-select fs-4">
             <option>Order Date (Newest)</option>
             <option>Order Date (Oldest)</option>
             <option>Amount (High to Low)</option>
@@ -248,31 +269,35 @@ const Sales = () => {
             type="text"
             value={searchText}
             onChange={handleSearchTextChange}
-            className="form-control me-2"
+            className="form-control me-2 fs-4"
             placeholder="Find by order number"
           />
-          <button className="btn btn-primary" type="button">
+          <button className="btn btn-primary fs-4" type="button">
             <i className="fas fa-search"></i> Find
           </button>
         </div>
         <div className="col-md-6 d-flex flex-wrap justify-content-end">
-          <button type="button" className="btn btn-outline-secondary me-2 mb-2">
-            Work Orders (3)
+        <button type="button" onClick={() => filterByStatus("All")} className="btn btn-outline-secondary me-2 mb-2">
+            All ({orders.length})
           </button>
-          <button type="button" className="btn btn-outline-secondary me-2 mb-2">
-            Purchasing (2)
+          
+          <button type="button" onClick={() => filterByStatus("Work Order")} className="btn btn-outline-secondary me-2 mb-2">
+            Work Orders ({statusCounts["Work Order"] || 0})
           </button>
-          <button type="button" className="btn btn-outline-secondary me-2 mb-2">
-            Incoming (3)
+          <button type="button" onClick={() => filterByStatus("Purchasing")}  className="btn btn-outline-secondary me-2 mb-2">
+            Purchasing ({statusCounts["Purchasing"] || 0})
           </button>
-          <button type="button" className="btn btn-outline-secondary me-2 mb-2">
-            Quality (2)
+          <button type="button" onClick={() => filterByStatus("Incoming")} className="btn btn-outline-secondary me-2 mb-2">
+            Incoming ({statusCounts["Incoming"] || 0})
           </button>
-          <button type="button" className="btn btn-outline-secondary me-2 mb-2">
-            Kitting (3)
+          <button type="button" onClick={() => filterByStatus("Quality")} className="btn btn-outline-secondary me-2 mb-2">
+            Quality ({statusCounts["Quality"] || 0})
           </button>
-          <button type="button" className="btn btn-outline-secondary mb-2">
-            Production (5)
+          <button type="button" onClick={() => filterByStatus("Kitting")} className="btn btn-outline-secondary me-2 mb-2">
+            Kitting ({statusCounts["Kitting"] || 0})
+          </button>
+          <button type="button" onClick={() => filterByStatus("Production")} className="btn btn-outline-secondary mb-2">
+            Production ({statusCounts["Production"] || 0})
           </button>
         </div>
       </div>
