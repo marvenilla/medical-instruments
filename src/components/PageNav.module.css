@@ -3,6 +3,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-left: 40px;  /* Adjust the value as needed */
+  margin-right: 40px; /* Adjust the value as needed */
 }
 
 .navLinks {
