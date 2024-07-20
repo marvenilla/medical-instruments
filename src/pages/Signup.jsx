@@ -1,29 +1,29 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Login.module.css";
+import styles from "./Signup.module.css";
 import { supabase } from "../supabase";
 import { NavLink } from "react-router-dom";
 
-export default function Login() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
-    const response = await supabase.auth.signInWithPassword({ email, password });
+    const response = await supabase.auth.signUp({ email, password });
     if (response.error) {
-      console.error("Error logging in:", response.error.message);
+      console.error("Error signing up:", response.error.message);
     } else {
-      console.log("Logged in successfully");
-      navigate("/home");
+      console.log("Signed up successfully");
+      navigate("/home")
     }
   };
 
   return (
-    <main className={styles.login}>
-      <h1 className={styles.title}>LOG IN</h1>
-      <form className={styles.form} onSubmit={handleLogin}>
+    <main className={styles.signup}>
+      <h1 className={styles.title}>SIGN UP</h1>
+      <form className={styles.form} onSubmit={handleSignUp}>
         <div className={styles.row}>
           <label htmlFor="email">Email address</label>
           <input
@@ -45,12 +45,13 @@ export default function Login() {
         </div>
 
         <div className={styles.buttonContainer}>
-          <button type="submit" className={styles.button}>Login</button>
+          <button type="submit" className={styles.button}>Sign Up</button>
         </div>
       </form>
-      <div className={styles.signupLink}>
-        <NavLink to="/signup">Do not have an account? Sign up here</NavLink>
+      <div className={styles.loginLink}>
+        <NavLink to="/login">Already have an account? Login here</NavLink>
       </div>
     </main>
   );
 }
+
