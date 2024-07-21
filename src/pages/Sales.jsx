@@ -16,144 +16,144 @@ const Sales = () => {
         date: "2024-07-10",
         amount: 73.12,
         status: "Purchasing",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "Maple Leaf Medical Center",
+        description: "Maple Leaf Medical Center",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S09072024",
         date: "2024-07-09",
         amount: 425,
         status: "Purchasing",
-        description: "Acct #: 561902 Ordered by: Sophia Martinez",
-        shipTo: "Lakeside Health Clinic",
+        description: "Lakeside Health Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S08072024",
         date: "2024-07-08",
         amount: 580,
         status: "Work Order",
-        description: "Acct #: 748320 Ordered by: Ethan Johnson",
-        shipTo: "Midtown Wellness Clinic",
+        description: "Midtown Wellness Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S07072024",
         date: "2024-07-07",
         amount: 1200,
         status: "Kitting",
-        description: "Acct #: 215489 Ordered by: Lucas Williams",
-        shipTo: "Toronto Family Care Clinic",
+        description: "Toronto Family Care Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S06072024",
         date: "2024-07-06",
         amount: 2350,
         status: "Quality",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "Evergreen Health Solutions",
+        description: "Evergreen Health Solutions",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S05072024",
         date: "2024-07-05",
         amount: 3900,
         status: "Incoming",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "North York Medical Plaza",
+        description: "North York Medical Plaza",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S04072024",
         date: "2024-07-04",
         amount: 975,
         status: "Work Order",
-        description: "Acct #: 561902 Ordered by: Sophia Martinez",
-        shipTo: "Harmony Health Hospital",
+        description: "Harmony Health Hospital",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S03072024",
         date: "2024-07-03",
         amount: 750,
         status: "Quality",
-        description: "Acct #: 561902 Ordered by: Sophia Martinez",
-        shipTo: "Bayview Wellness Center",
+        description: "Bayview Wellness Center",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S02072024",
         date: "2024-07-02",
         amount: 4500,
         status: "Kitting",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "Urban Health Centre",
+        description: "Urban Health Centre",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S01072024",
         date: "2024-07-01",
         amount: 5250,
         status: "Incoming",
-        description: "Acct #: 215489 Ordered by: Lucas Williams",
-        shipTo: "Downtown Medical Centre",
+        description: "Downtown Medical Centre",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S30062024",
         date: "2024-06-30",
         amount: 3100,
         status: "Production",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "Parkdale Hospital",
+        description: "Parkdale Hospital",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S29062024",
         date: "2024-06-29",
         amount: 5950,
         status: "Production",
-        description: "Acct #: 493827 Ordered by: Emily Roberts",
-        shipTo: "Forest Hill Medical Group",
+        description: "Forest Hill Medical Group",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S28062024",
         date: "2024-06-28",
         amount: 600,
         status: "Production",
-        description: "Acct #: 748320 Ordered by: Ethan Johnson",
-        shipTo: "Liberty Village Health Centre",
+        description: "Liberty Village Health Centre",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S27062024",
         date: "2024-06-27",
         amount: 1850,
         status: "Incoming",
-        description: "Acct #: 215489 Ordered by: Lucas Williams",
-        shipTo: "West End Medical Clinic",
+        description: "West End Medical Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S26062024",
         date: "2024-06-26",
         amount: 2750,
         status: "Production",
-        description: "Acct #: 561902 Ordered by: Sophia Martinez",
-        shipTo: "Riverdale Health and Wellness Clinic",
+        description: "Riverdale Health and Wellness Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S25062024",
         date: "2024-06-25",
         amount: 4800,
         status: "Work Order",
-        description: "Acct #: 748320 Ordered by: Ethan Johnson",
-        shipTo: "Diamond Labs",
+        description: "Diamond Labs",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S24062024",
         date: "2024-06-24",
         amount: 193.12,
         status: "Kitting",
-        description: "Acct #: 561902 Ordered by: Sophia Martinez",
-        shipTo: "Toronto Clinic",
+        description: "Toronto Clinic",
+        items: "Item 1, Item 2, Item 3",
       },
       {
         id: "S23062024",
         date: "2024-06-23",
         amount: 473.11,
         status: "Production",
-        description: "Acct #: 215489 Ordered by: Lucas Williams",
-        shipTo: "St. Andrew's Hospital",
+        description: "St. Andrew's Hospital",
+        items: "Item 1, Item 2, Item 3",
       },
     ];
     setOrders(dummyOrders);
@@ -166,7 +166,7 @@ const Sales = () => {
   const filterByStatus = (status) => {
     if (status === "All") {
       setOrders(orders);
-      setStatusData(orders)
+      setStatusData(orders);
     } else {
       const filtered = orders.filter((order) => order.status === status);
       setStatusData(filtered);
@@ -177,7 +177,7 @@ const Sales = () => {
     acc[order.status] = (acc[order.status] || 0) + 1;
     return acc;
   }, {});
-  
+
   const filterOrders = () => {
     let filteredOrders = orders;
 
@@ -198,10 +198,12 @@ const Sales = () => {
         daysAgo = 30;
     }
     const cutoffDate = new Date(now.setDate(now.getDate() - daysAgo));
-    filteredOrders = filteredOrders.filter((order) => new Date(order.date) >= cutoffDate);
+    filteredOrders = filteredOrders.filter(
+      (order) => new Date(order.date) >= cutoffDate
+    );
 
     //Filter by status selection
-    if(statusData.length > 0){
+    if (statusData.length > 0) {
       filteredOrders = statusData;
     }
     // Filter by search text
@@ -237,90 +239,126 @@ const Sales = () => {
     <div>
       <PageNav />
       <div className="container mt-4 fs-4">
-      <h2 className="mb-4">SALES ORDER</h2>
-      <div className="row mb-3">
-        <div className="col-md-6">
+        <h2 className="mb-4">SALES ORDER</h2>
+        <div className="row mb-3">
+          <div className="col-md-6">
+            <label htmlFor="orderHistory" className="form-label">
+              Order History
+            </label>
+            <select
+              id="orderHistory"
+              onChange={handleOrderHistoryChange}
+              value={orderHistory}
+              className="form-select fs-4"
+            >
+              <option value="30 days">30 days of order history</option>
+              <option value="60 days">60 days of order history</option>
+              <option value="90 days">90 days of order history</option>
+            </select>
+          </div>
+          <div className="col-md-6">
+            <label htmlFor="sortBy" className="form-label">
+              Sort By
+            </label>
+            <select
+              id="sortBy"
+              value={sortBy}
+              onChange={handleSortByChange}
+              className="form-select fs-4"
+            >
+              <option>Order Date (Newest)</option>
+              <option>Order Date (Oldest)</option>
+              <option>Amount (High to Low)</option>
+              <option>Amount (Low to High)</option>
+            </select>
+          </div>
+        </div>
 
-          <label htmlFor="orderHistory" className="form-label">
-            Order History
-          </label>
-          <select id="orderHistory" onChange={handleOrderHistoryChange} value={orderHistory} className="form-select fs-4">
-            <option value="30 days">30 days of order history</option>
-            <option value="60 days">60 days of order history</option>
-            <option value="90 days">90 days of order history</option>
-          </select>
+        <div className="row mb-3 align-items-center">
+          <div className="col-md-6 d-flex">
+            <input
+              type="text"
+              value={searchText}
+              onChange={handleSearchTextChange}
+              className="form-control me-2 fs-4"
+              placeholder="Find by order number"
+            />
+            <button className="btn btn-primary fs-4" type="button">
+              <i className="fas fa-search"></i> Find
+            </button>
+          </div>
+          <div className="col-md-6 d-flex flex-wrap justify-content-end">
+            <button
+              type="button"
+              onClick={() => filterByStatus("All")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              All ({orders.length})
+            </button>
+
+            <button
+              type="button"
+              onClick={() => filterByStatus("Work Order")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              Work Orders ({statusCounts["Work Order"] || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => filterByStatus("Purchasing")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              Purchasing ({statusCounts["Purchasing"] || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => filterByStatus("Incoming")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              Incoming ({statusCounts["Incoming"] || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => filterByStatus("Quality")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              Quality ({statusCounts["Quality"] || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => filterByStatus("Kitting")}
+              className="btn btn-outline-secondary me-2 mb-2"
+            >
+              Kitting ({statusCounts["Kitting"] || 0})
+            </button>
+            <button
+              type="button"
+              onClick={() => filterByStatus("Production")}
+              className="btn btn-outline-secondary mb-2"
+            >
+              Production ({statusCounts["Production"] || 0})
+            </button>
+          </div>
         </div>
-        <div className="col-md-6">
-          <label htmlFor="sortBy" className="form-label">
-            Sort By
-          </label>
-          <select id="sortBy" value={sortBy} onChange={handleSortByChange} className="form-select fs-4">
-            <option>Order Date (Newest)</option>
-            <option>Order Date (Oldest)</option>
-            <option>Amount (High to Low)</option>
-            <option>Amount (Low to High)</option>
-          </select>
-        </div>
+
+        <table className="table table-bordered">
+          <thead className="table-light">
+            <tr>
+              <th scope="col">Order #</th>
+              <th scope="col">Order Date</th>
+              <th scope="col">Client Details</th>
+              <th scope="col">Order Details</th>
+              <th scope="col">Product Total</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filterOrders().map((order) => (
+              <OrderItem key={order.id} order={order} />
+            ))}
+          </tbody>
+        </table>
       </div>
-
-      <div className="row mb-3 align-items-center">
-        <div className="col-md-6 d-flex">
-          <input
-            type="text"
-            value={searchText}
-            onChange={handleSearchTextChange}
-            className="form-control me-2 fs-4"
-            placeholder="Find by order number"
-          />
-          <button className="btn btn-primary fs-4" type="button">
-            <i className="fas fa-search"></i> Find
-          </button>
-        </div>
-        <div className="col-md-6 d-flex flex-wrap justify-content-end">
-        <button type="button" onClick={() => filterByStatus("All")} className="btn btn-outline-secondary me-2 mb-2">
-            All ({orders.length})
-          </button>
-          
-          <button type="button" onClick={() => filterByStatus("Work Order")} className="btn btn-outline-secondary me-2 mb-2">
-            Work Orders ({statusCounts["Work Order"] || 0})
-          </button>
-          <button type="button" onClick={() => filterByStatus("Purchasing")}  className="btn btn-outline-secondary me-2 mb-2">
-            Purchasing ({statusCounts["Purchasing"] || 0})
-          </button>
-          <button type="button" onClick={() => filterByStatus("Incoming")} className="btn btn-outline-secondary me-2 mb-2">
-            Incoming ({statusCounts["Incoming"] || 0})
-          </button>
-          <button type="button" onClick={() => filterByStatus("Quality")} className="btn btn-outline-secondary me-2 mb-2">
-            Quality ({statusCounts["Quality"] || 0})
-          </button>
-          <button type="button" onClick={() => filterByStatus("Kitting")} className="btn btn-outline-secondary me-2 mb-2">
-            Kitting ({statusCounts["Kitting"] || 0})
-          </button>
-          <button type="button" onClick={() => filterByStatus("Production")} className="btn btn-outline-secondary mb-2">
-            Production ({statusCounts["Production"] || 0})
-          </button>
-        </div>
-      </div>
-
-      <table className="table table-bordered">
-        <thead className="table-light">
-          <tr>
-            <th scope="col">Order #</th>
-            <th scope="col">Order Date</th>
-            <th scope="col">Order Details</th>
-            <th scope="col">Ship To</th>
-            <th scope="col">Product Total</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filterOrders().map((order) => (
-            <OrderItem key={order.id} order={order} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-
     </div>
   );
 };

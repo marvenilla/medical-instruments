@@ -8,7 +8,7 @@ const OrderItem = ({ order }) => {
       <td>{order.id}</td>
       <td>{order.date}</td>
       <td>{order.description}</td>
-      <td>{order.shipTo}</td>
+      <td>{order.items}</td>
       <td>CAD {order.amount.toFixed(2)}</td>
       <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
     </tr>
@@ -22,7 +22,7 @@ OrderItem.propTypes = {
     amount: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    shipTo: PropTypes.string.isRequired,
+    items: PropTypes.string.isRequired,
   }).isRequired,
 };
 
