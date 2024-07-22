@@ -1,21 +1,37 @@
 // import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Dropdown, Input } from '../components/layout';
+import { Dropdown, Input, Autocomplete } from '../components/layout';
 import PageNav from '../components/PageNav';
 import { useState } from 'react';
+import { daysBetween, formatDate } from '../helpers';
 
-const differenceInDays = (stringDate1, stringDate2) => {
-  const date1 = new Date(stringDate1);
-  const date2 = new Date(stringDate2);
-  date1.setHours(0, 0, 0, 0);
-  date2.setHours(0, 0, 0, 0);
-  const differenceInTime = date1.getTime() - date2.getTime();
-  const offsetInMinutes = new Date().getTimezoneOffset();
-  const offsetInDays = offsetInMinutes / 60 / 24;
-  const differenceInDays = differenceInTime / (1000 * 3600 * 24) + offsetInDays;
-  const result =  Math.round(differenceInDays);
-  return result < -10000 ? 0:result
-};
+const arrayProducts = [
+  {
+    productId: 1,
+    name: 'Item 1',
+    stock: 10,
+  },
+  {
+    productId: 2,
+    name: 'Item 2',
+    stock: 8,
+  },
+  {
+    productId: 3,
+    name: 'Item 3',
+    stock: 15,
+  },
+  {
+    productId: 4,
+    name: 'Item 4',
+    stock: 0,
+  },
+  {
+    productId: 5,
+    name: 'Item 5',
+    stock: 2,
+  },
+];
 
 function AppLayout() {
   const [values, setValues] = useState({
@@ -24,35 +40,74 @@ function AppLayout() {
     orderDate: null,
     dateOfShipment: null,
     dateOfArrival: null,
+    orderQuantity: null,
+    productUnits: null,
   });
-  let shippedOnTime = ''
-  if(values.dateOfShipment && values.shipDate1){
-    shippedOnTime = values.dateOfShipment <= values.shipDate1 ? 'Yes' : 'No'
+  let shippedOnTime = '';
+  if (values.dateOfShipment && values.shipDate1) {
+    shippedOnTime = values.dateOfShipment <= values.shipDate1 ? 'Yes' : 'No';
   }
+
+  // Logic to disable the button to create a work order
+  let disableButton = true;
+  if (values.productUnits != null && values.orderQuantity != null)
+    disableButton =
+      values.productUnits !== 0 && values.productUnits > values.orderQuantity;
 
   return (
     <div>
       <PageNav />
       <div className="container my-4">
-        <div className={'mt-5 fs-4 row'}>
+        <form className={'mt-5 fs-4 row'}>
           <div className="col-md-6">
             <Input label="Sales Order" />
             <Input label="Client" />
             <Input label="SKU#" />
-            <Input label="Product name" />
+            <Autocomplete
+              label="Product name"
+              options={arrayProducts}
+              onChange={(option) => {
+                const [{ stock }] = option;
+                setValues({ ...values, productUnits: stock });
+              }}
+            />
             <Dropdown
               label="Family"
-              options={['','Fam1', 'Fam2', 'Fam3', 'Fam4']}
+              options={['', 'Fam1', 'Fam2', 'Fam3', 'Fam4']}
             />
-            <Dropdown label="Sub-family" options={['','SubFam1', 'SubFam2']} />
-            <Dropdown label="Subject to shelf life?" options={['','Yes', 'No']} />
-            <Input label="Order quantity" />
-            <Dropdown label="Partial Shipment" options={['','Yes', 'No']} />
+            <Dropdown label="Sub-family" options={['', 'SubFam1', 'SubFam2']} />
+            <Dropdown
+              label="Subject to shelf life?"
+              options={['', 'Yes', 'No']}
+            />
+            <div className="d-flex align-items-center gap-4">
+              <Input
+                label="Order quantity"
+                type="number"
+                onChange={({ target }) =>
+                  setValues({ ...values, orderQuantity: Number(target.value) })
+                }
+              />
+              <button
+                className="btn btn-primary fs-5 10"
+                disabled={disableButton}
+              >
+                <Link
+                  to="/work-order"
+                  className="text-light text-decoration-none text-nowrap"
+                >
+                  Create work order
+                </Link>
+              </button>
+              {/* <Link to="/work-order" className="btn btn-primary fs-5 10">
+                Create Work Orders
+              </Link> */}
+            </div>
+            <Dropdown label="Partial Shipment" options={['', 'Yes', 'No']} />
             <Input label="Bal due" />
             <Input
               label="Order date"
               type="date"
-              name="orderDate"
               onChange={({ target }) =>
                 setValues({ ...values, orderDate: target.value })
               }
@@ -76,12 +131,12 @@ function AppLayout() {
             <Input
               label="Count days to sched date 1"
               disabled={true}
-              value={differenceInDays(values.shipDate1, new Date())}
+              value={daysBetween(values.shipDate1, formatDate(new Date()))}
             />
             <Input
               label="Count days to sched date 2"
               disabled={true}
-              value={differenceInDays(values.shipDate2, new Date())}
+              value={daysBetween(values.shipDate2, formatDate(new Date()))}
             />
             <Dropdown
               label="Operation"
@@ -102,7 +157,6 @@ function AppLayout() {
             <Input
               label="Date of shipment"
               type="date"
-              name="dateOfShipment"
               onChange={({ target }) =>
                 setValues({ ...values, dateOfShipment: target.value })
               }
@@ -110,7 +164,7 @@ function AppLayout() {
             <Input
               label="Lead Time (from order to shipping)"
               disabled={true}
-              value={differenceInDays(values.dateOfShipment, values.orderDate)}
+              value={daysBetween(values.dateOfShipment, values.orderDate)}
             />
             <Input
               label="Shipped on time?"
@@ -119,7 +173,7 @@ function AppLayout() {
             />
             <Dropdown
               label="Status of shipment"
-              options={['','Delayed', 'On the way', 'Delivered']}
+              options={['', 'Delayed', 'On the way', 'Delivered']}
             />
             <Input
               label="Date of arrival"
@@ -131,7 +185,7 @@ function AppLayout() {
             <Input
               label="Transit time (from shipment to delivery)"
               disabled={true}
-              value={differenceInDays(
+              value={daysBetween(
                 values.dateOfArrival,
                 values.dateOfShipment
               )}
@@ -139,17 +193,26 @@ function AppLayout() {
             <Input
               label="Total time"
               disabled={true}
-              value={differenceInDays(values.dateOfArrival, values.orderDate)}
+              value={daysBetween(values.dateOfArrival, values.orderDate)}
             />
             <Input label="Comments" />
           </div>
-        </div>
 
-        <div className="d-flex justify-content-center align-items-center mt-5">
-          <Link to="/work-order" className="btn btn-primary fs-4 10">
-            Go to Work Orders
-          </Link>
-        </div>
+          <div className='d-flex gap-3 flex-row-reverse mt-4'>
+            <button
+              className="btn btn-primary fs-4 10 w-100"
+              style={{ maxWidth: '200px' }}
+            >
+              Save
+            </button>
+            <button
+              className="btn btn-outline-primary fs-4 10 w-100"
+              style={{ maxWidth: '200px' }}
+            >
+              Clear
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

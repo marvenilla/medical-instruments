@@ -1,0 +1,30 @@
+body {
+  margin: 30px;
+}
+
+.form-control {
+  padding-right: 34px;
+}
+
+.toggle-button {
+  background: transparent;
+  border: 0;
+  bottom: 0;
+  padding: 0 12px;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.field-autocomplete {
+  height: 30.75px;
+  width: 100%;
+}
+
+.custom-autocomplete {
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap; 
+}

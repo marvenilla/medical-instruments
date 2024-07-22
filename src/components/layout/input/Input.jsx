@@ -11,7 +11,7 @@ export const Input = ({
   disabled = false,
 }) => {
   return (
-    <div className="custom-input my-3">
+    <div className="custom-input my-3 w-100">
       <label className="form-label custom-label">{label}</label>
       <input
         disabled={disabled}
