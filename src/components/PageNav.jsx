@@ -67,7 +67,7 @@ function PageNav() {
           >
             <NavDropdown.Item
               as={NavLink}
-              to="/tracking"
+              to="/inventory"
               className={styles.dropdownItem}
             >
               Current inventory
