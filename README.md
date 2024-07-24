@@ -1,6 +1,3 @@
-Here's a sample README file for your GitHub repository:
-
-```markdown
 # Medical Instruments Order Management Web Application
 
 ## Table of Contents
