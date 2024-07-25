@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { NavLink } from "react-router-dom";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
 import { useAuth } from "../Authentication/useAuth";
@@ -5,15 +6,15 @@ import Logo from "./Logo";
 import styles from "./PageNav.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-function PageNav() {
+function PageNav({homePageNav = false}) {
   const { isAuthenticated, logout } = useAuth();
 
   return (
-    <Navbar expand="lg" className={styles.nav}>
+    <Navbar expand="lg" className={homePageNav ? styles.navBar: styles.nav}>
       <Logo />
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className={`ml-auto ${styles.navLinks}`}>
+        <Nav className={`ml-auto ${styles.navLinks} ${homePageNav ? 'text-white': 'text-dark'}`}>
           <Nav.Link as={NavLink} to="/home" className={styles.navLink}>
             Home
           </Nav.Link>

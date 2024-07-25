@@ -12,8 +12,9 @@ import SalesOrderDetails from "./pages/SalesOrderDetails";
 
 function App() {
   return (
-    <AuthProvider>
+   
       <BrowserRouter>
+       <AuthProvider>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/home" element={<Homepage />} />
@@ -26,8 +27,8 @@ function App() {
           <Route path="/app" element={<AppLayout />} />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
+        </AuthProvider>
       </BrowserRouter>
-    </AuthProvider>
   );
 }
 

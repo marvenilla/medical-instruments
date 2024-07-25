@@ -6,7 +6,7 @@ export default function Homepage() {
   return (
     <main className={styles.homepage}>
       <div className={styles.content}>
-      <PageNav />
+         <PageNav homePageNav={true} />
       <section>
         <h1>
           We give care to people.
