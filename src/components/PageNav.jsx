@@ -234,9 +234,6 @@ function PageNav({homePageNav = false}) {
               Efficiencies
             </NavDropdown.Item>
           </NavDropdown>
-
-         
-
         {isAuthenticated ? (
         <Nav.Link as={NavLink} className={`${styles.navLink} ${styles.ctaLink}`} onClick={logout}>Logout</Nav.Link>
       ) : (
