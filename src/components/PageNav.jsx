@@ -10,7 +10,7 @@ function PageNav({homePageNav = false}) {
   const { isAuthenticated, logout } = useAuth();
 
   return (
-    <Navbar expand="lg" className={homePageNav ? styles.navBar: styles.nav}>
+    <Navbar expand="lg" className={homePageNav ? [styles.navBar, styles.navBarMargin]: styles.nav}>
       <Logo />
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
@@ -238,7 +238,7 @@ function PageNav({homePageNav = false}) {
          
 
         {isAuthenticated ? (
-        <button className={`${styles.navLink} ${styles.ctaLink}`} onClick={logout}>Logout</button>
+        <Nav.Link as={NavLink} className={`${styles.navLink} ${styles.ctaLink}`} onClick={logout}>Logout</Nav.Link>
       ) : (
         <Nav.Link
             as={NavLink}

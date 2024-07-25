@@ -7,6 +7,11 @@
   margin-right: 40px; /* Adjust the value as needed */
 }
 
+.navBarMargin{
+  margin-left: 40px;  /* Adjust the value as needed */
+  margin-right: 40px; /* Adjust the value as needed */
+}
+
 .navBar a{
   text-decoration: none;
   color: white !important;
