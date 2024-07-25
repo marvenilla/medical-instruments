@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PageNav from "../components/PageNav";
 import OrderItem from "../components/OrderItem";
+import { dummyOrders } from "../helpers/orderData";
 
 const Sales = () => {
   const [orders, setOrders] = useState([]);
@@ -10,96 +11,6 @@ const Sales = () => {
   const [statusData, setStatusData] = useState([]);
 
   useEffect(() => {
-    const dummyOrders = [
-      {
-        id: "S10072024",
-        date: "2024-07-10",
-        amount: 73.12,
-        status: "Purchasing",
-        description: "Maple Leaf Medical Center",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S09072024",
-        date: "2024-07-09",
-        amount: 425,
-        status: "Purchasing",
-        description: "Lakeside Health Clinic",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S08072024",
-        date: "2024-07-08",
-        amount: 580,
-        status: "Work Order",
-        description: "Midtown Wellness Clinic",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S07072024",
-        date: "2024-07-07",
-        amount: 1200,
-        status: "Kitting",
-        description: "Toronto Family Care Clinic",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S06072024",
-        date: "2024-07-06",
-        amount: 2350,
-        status: "Quality",
-        description: "Evergreen Health Solutions",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S05072024",
-        date: "2024-07-05",
-        amount: 3900,
-        status: "Incoming",
-        description: "North York Medical Plaza",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S04072024",
-        date: "2024-07-04",
-        amount: 975,
-        status: "Work Order",
-        description: "Harmony Health Hospital",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S03072024",
-        date: "2024-07-03",
-        amount: 750,
-        status: "Quality",
-        description: "Bayview Wellness Center",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S02072024",
-        date: "2024-07-02",
-        amount: 4500,
-        status: "Kitting",
-        description: "Urban Health Centre",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S01072024",
-        date: "2024-07-01",
-        amount: 5250,
-        status: "Incoming",
-        description: "Downtown Medical Centre",
-        items: "Item 1, Item 2, Item 3",
-      },
-      {
-        id: "S30062024",
-        date: "2024-06-30",
-        amount: 3100,
-        status: "Production",
-        description: "Parkdale Hospital",
-        items: "Item 1, Item 2, Item 3",
-      },
-    ];
     setOrders(dummyOrders);
   }, []);
 
@@ -294,6 +205,10 @@ const Sales = () => {
               <th scope="col">Order Details</th>
               <th scope="col">Product Total</th>
               <th scope="col">Status</th>
+
+              <th scope="col">Shipment Status</th>
+              <th scope="col">Shipment Date</th>
+
             </tr>
           </thead>
           <tbody>

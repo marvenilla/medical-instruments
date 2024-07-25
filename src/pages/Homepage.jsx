@@ -5,6 +5,7 @@ import styles from "./Homepage.module.css";
 export default function Homepage() {
   return (
     <main className={styles.homepage}>
+      <div className={styles.content}>
       <PageNav />
       <section>
         <h1>
@@ -21,6 +22,7 @@ export default function Homepage() {
           Start Ordering now
         </Link>
       </section>
+      </div>
     </main>
   );
 }

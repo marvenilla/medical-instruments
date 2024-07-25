@@ -1,10 +1,13 @@
 import { NavLink } from "react-router-dom";
 import { Navbar, Nav, NavDropdown } from "react-bootstrap";
+import { useAuth } from "../Authentication/useAuth";
 import Logo from "./Logo";
 import styles from "./PageNav.module.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function PageNav() {
+  const { isAuthenticated, logout } = useAuth();
+
   return (
     <Navbar expand="lg" className={styles.nav}>
       <Logo />
@@ -231,13 +234,19 @@ function PageNav() {
             </NavDropdown.Item>
           </NavDropdown>
 
-          <Nav.Link
+         
+
+        {isAuthenticated ? (
+        <button className={`${styles.navLink} ${styles.ctaLink}`} onClick={logout}>Logout</button>
+      ) : (
+        <Nav.Link
             as={NavLink}
             to="/login"
             className={`${styles.navLink} ${styles.ctaLink}`}
           >
             Login
           </Nav.Link>
+      )}
         </Nav>
       </Navbar.Collapse>
     </Navbar>

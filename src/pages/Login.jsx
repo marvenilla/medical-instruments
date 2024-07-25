@@ -3,19 +3,23 @@ import { useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import { supabase } from "../supabase";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../Authentication/useAuth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     const response = await supabase.auth.signInWithPassword({ email, password });
+    console.log(response);
     if (response.error) {
       console.error("Error logging in:", response.error.message);
     } else {
       console.log("Logged in successfully");
+      login();
       navigate("/home");
     }
   };
