@@ -14,7 +14,7 @@ function PageNav({homePageNav = false}) {
       <Logo />
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className={`ml-auto ${styles.navLinks} ${homePageNav ? 'text-white': 'text-dark'}`}>
+        <Nav className={`ml-auto ${styles.navLinks}`}>
           <Nav.Link as={NavLink} to="/home" className={styles.navLink}>
             Home
           </Nav.Link>
