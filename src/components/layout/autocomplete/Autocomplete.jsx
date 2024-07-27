@@ -1,9 +1,7 @@
 /* eslint-disable react/prop-types */
 import { Typeahead } from 'react-bootstrap-typeahead';
-// import 'bootstrap/dist/css/bootstrap.css';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import './styles.css';
-// import { dataExample } from './data';
 
 function filterBy(option, state) {
   if (state.selected.length) {
@@ -15,6 +13,7 @@ function filterBy(option, state) {
 const ToggleButton = ({ isOpen, onClick }) => (
   <button
     className="toggle-button"
+    type='button'
     onClick={onClick}
     onMouseDown={(e) => {
       // Prevent input from losing focus.
@@ -26,20 +25,17 @@ const ToggleButton = ({ isOpen, onClick }) => (
 );
 
 // eslint-disable-next-line no-unused-vars
-export const Autocomplete = ({ label, options, onChange, placeholder = '' }) => {
-  const formatOptions = options.map((option) => ({
-    ...option,
-    label: `${option.name} - Units: ${option.stock}`,
-  }));
+export const Autocomplete = ({ label, options,multiple, onChange, placeholder = '' }) => {
   return (
     <div className="custom-autocomplete">
       <label className="form-label">{label}</label>
       <Typeahead
+        multiple={multiple}
         filterBy={filterBy}
         id="field-autocomplete"
         onChange={onChange}
         className="field-autocomplete"
-        options={formatOptions}
+        options={options}
         placeholder={placeholder}
       >
         {({ isMenuShown, toggleMenu }) => (

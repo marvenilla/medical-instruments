@@ -1,7 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import PageNav from "../components/PageNav";
 import OrderItem from "../components/OrderItem";
 import { dummyOrders } from "../helpers/orderData";
+import { supabase } from "../supabase";
 
 const Sales = () => {
   const [orders, setOrders] = useState([]);
@@ -9,6 +11,30 @@ const Sales = () => {
   const [sortBy, setSortBy] = useState("Order Date (Newest)");
   const [searchText, setSearchText] = useState("");
   const [statusData, setStatusData] = useState([]);
+  const [salesOrderData, setSalesOrderData] = useState([]);
+
+  useEffect(() => {
+    const getSalesOrder = async () => {
+      const { data, error } = await supabase
+        .from("SalesOrder")
+        .select()
+
+      if (error) console.log("Error fetching sales order data:", error.message);
+
+      const formatData = data.map((order) => ({
+        id: order.sales_id,
+        date: order.order_date,
+        shipmentDate: null,
+        items: order.order_details,
+        amount: null,
+        status: order.status,
+        shipmentStatus: order.status,
+        description: null,
+      }));
+      setSalesOrderData(formatData);
+    };
+    getSalesOrder();
+  }, []);
 
   useEffect(() => {
     setOrders(dummyOrders);
@@ -33,8 +59,8 @@ const Sales = () => {
     return acc;
   }, {});
 
-  const filterOrders = () => {
-    let filteredOrders = orders;
+  const filterOrders = (arrayOrders) => {
+    let filteredOrders = arrayOrders;
 
     // Filter by order history
     const now = new Date();
@@ -208,11 +234,10 @@ const Sales = () => {
 
               <th scope="col">Shipment Status</th>
               <th scope="col">Shipment Date</th>
-
             </tr>
           </thead>
           <tbody>
-            {filterOrders().map((order) => (
+            {filterOrders(salesOrderData).map((order) => (
               <OrderItem key={order.id} order={order} />
             ))}
           </tbody>

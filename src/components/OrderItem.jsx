@@ -10,8 +10,8 @@ const OrderItem = ({ order }) => {
       <td>{order.date}</td>
       <td>{order.description}</td>
       <td>{order.items}</td>
-      <td>CAD {order.amount.toFixed(2)}</td>
-      <td className={`status ${order.status.toLowerCase()}`}>{order.status}</td>
+      <td>CAD {order.amount?.toFixed(2)}</td>
+      <td className={`status ${order.status?.toLowerCase()}`}>{order.status}</td>
       <td>{order.shipmentStatus}</td>
       <td>{order.shipmentDate}</td>
     </tr>
@@ -20,7 +20,7 @@ const OrderItem = ({ order }) => {
 
 OrderItem.propTypes = {
   order: PropTypes.shape({
-    id: PropTypes.string.isRequired,
+    id: PropTypes.number.isRequired,
     date: PropTypes.string.isRequired,
     amount: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
