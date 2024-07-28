@@ -14,7 +14,6 @@ export const daysBetween = (stringDate1, stringDate2) => {
   const offsetInDays = offsetInMinutes / 60 / 24;
   const differenceInDays = differenceInTime / (1000 * 3600 * 24) + offsetInDays;
   const result = Math.round(differenceInDays);
-  console.log({ result, differenceInDays });
   return result < -10000 ? 0 : result;
 };
 
@@ -28,6 +27,5 @@ export const formatDate = (date) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   const formatDate = `${year}-${month}-${day}`;
-  console.log({date, formatDate});
   return formatDate;
 };
