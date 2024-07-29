@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './ProductInventory.css';
 import PageNav from '../components/PageNav';
+import { supabase } from '../supabase';
 
 const ProductInventory = () => {
   const [products, setProducts] = useState([]);
@@ -9,43 +10,74 @@ const ProductInventory = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [filterCategory, setFilterCategory] = useState('');
   const [filterId, setFilterId] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Load products from local storage when the component mounts
-    const savedProducts = localStorage.getItem('products');
-    console.log('Raw products from localStorage:', savedProducts);
-    if (savedProducts && savedProducts !== '[]') {
-      try {
-        const parsedProducts = JSON.parse(savedProducts);
-        if (Array.isArray(parsedProducts)) {
-          setProducts(parsedProducts);
-          console.log('Loaded products from localStorage:', parsedProducts);
-        } else {
-          console.error('Parsed products is not an array:', parsedProducts);
-        }
-      } catch (error) {
-        console.error('Error parsing products from localStorage:', error);
+    // Fetch products from the database when the component mounts
+    const fetchProducts = async () => {
+      const fetchResult = await supabase
+        .from('Product')
+        .select('*');
+
+      if (fetchResult.error) {
+        setError(fetchResult.error.message);
+      } else {
+        setProducts(fetchResult.data);
       }
-    }
-  }, []);
+    };
 
-  useEffect(() => {
-    // Save products to local storage whenever the products array changes
-    localStorage.setItem('products', JSON.stringify(products));
-    console.log('Products saved to localStorage:', products);
-  }, [products]);
+    fetchProducts();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCurrentProduct({ ...currentProduct, [name]: value });
   };
 
-  const handleAddProduct = () => {
+  const handleAddProduct = async () => {
+    const userResult = await supabase.auth.getUser();
+    if (userResult.error) {
+      setError(userResult.error.message);
+      return;
+    }
+
     const newProduct = {
       ...currentProduct,
-      id: Math.floor(Math.random() * 1000000) // Generate a random number for ID
+      user_id: userResult.data.user.id,
     };
-    setProducts([...products, newProduct]);
+
+    const insertResult = await supabase
+      .from("Product")
+      .insert([
+        {
+          user_id: newProduct.user_id,
+          name: newProduct.name,
+          quantity: newProduct.quantity,
+          price: newProduct.price,
+          unit_of_measure: newProduct.uom,
+          category: newProduct.category,
+          store_room: newProduct.storeRoom,
+          location: newProduct.location,
+          lot_number: newProduct.lotNumber,
+        }
+      ]);
+
+    if (insertResult.error) {
+      setError(insertResult.error.message);
+      return;
+    }
+
+    // Fetch the updated list of products from the database
+    const fetchResult = await supabase
+      .from('Product')
+      .select('*');
+
+    if (fetchResult.error) {
+      setError(fetchResult.error.message);
+      return;
+    }
+
+    setProducts(fetchResult.data);
     setCurrentProduct({ id: null, name: '', quantity: '', price: '', uom: 'Each', category: 'Finished Good', storeRoom: '', location: '', lotNumber: '' });
   };
 
@@ -81,6 +113,8 @@ const ProductInventory = () => {
       <div className="header">
         <h1>Inventory</h1>
       </div>
+
+      {error && <div className="error">{error}</div>} {/* Display error message */}
 
       <div className="form-container">
         <div className="form-group">
@@ -219,11 +253,11 @@ const ProductInventory = () => {
                 <td>{product.name}</td>
                 <td>{product.quantity}</td>
                 <td>{product.price}</td>
-                <td>{product.uom}</td>
+                <td>{product.unit_of_measure}</td>
                 <td>{product.category}</td>
-                <td>{product.storeRoom}</td>
+                <td>{product.store_room}</td>
                 <td>{product.location}</td>
-                <td>{product.lotNumber}</td>
+                <td>{product.lot_number}</td>
                 <td>
                   <button onClick={() => handleEditProduct(index)}>Edit</button>
                   <button onClick={() => handleDeleteProduct(index)}>Delete</button>
