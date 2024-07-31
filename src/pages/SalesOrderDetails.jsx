@@ -131,7 +131,7 @@ const SalesOrderDetails = () => {
               
               options={[
                 '',
-                'Word Order',
+                'Work Order',
                 'Purchasing',
                 'Incoming',
                 'Engineering',

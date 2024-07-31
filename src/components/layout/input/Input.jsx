@@ -1,27 +1,42 @@
 /* eslint-disable react/prop-types */
-import './Input.style.css';
+import "./Input.style.css";
 
 export const Input = ({
   label,
   placeholder,
   value,
+  register,
+  required = false,
   onChange,
-  type = 'text',
-  name = '',
+  type = "text",
+  name = "",
   disabled = false,
 }) => {
   return (
     <div className="custom-input my-3 w-100">
       <label className="form-label custom-label">{label}</label>
-      <input
-        disabled={disabled}
-        type={type}
-        name={name}
-        className="form-control form-control-lg"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-      />
+      {register ? (
+        <input
+          disabled={disabled}
+          type={type}
+          name={name}
+          className="form-control form-control-lg"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          {...register(name, { required })}
+        />
+      ) : (
+        <input
+          disabled={disabled}
+          type={type}
+          name={name}
+          className="form-control form-control-lg"
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+        />
+      )}
     </div>
   );
 };
