@@ -2,16 +2,15 @@
 import { useState, useEffect } from "react";
 import PageNav from "../components/PageNav";
 import OrderItem from "../components/OrderItem";
-import { dummyOrders } from "../helpers/orderData";
 import { supabase } from "../supabase";
 
 const Sales = () => {
   const [orders, setOrders] = useState([]);
   const [orderHistory, setOrderHistory] = useState("30 days");
   const [sortBy, setSortBy] = useState("Order Date (Newest)");
+  const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [statusData, setStatusData] = useState([]);
-  const [salesOrderData, setSalesOrderData] = useState([]);
 
   useEffect(() => {
     const getSalesOrder = async () => {
@@ -19,26 +18,28 @@ const Sales = () => {
         .from("SalesOrder")
         .select()
 
-      if (error) console.log("Error fetching sales order data:", error.message);
+      if (error) {
+        console.log("Error fetching sales order data:", error.message)
+        setLoading(false);
+      }
 
-      const formatData = data.map((order) => ({
+      const salesOrderData = data.map((order) => ({
         id: order.sales_id,
         date: order.order_date,
-        shipmentDate: null,
-        items: order.order_details,
-        amount: null,
+        client: order.client,
+        shipmentDate: order.date_of_ship,
+        order_details: order.order_details,
+        amount: order.amount,
         status: order.status,
-        shipmentStatus: order.status,
-        description: null,
+        shipmentStatus: order.status_of_shipment,
+        description: order.comments,
       }));
-      setSalesOrderData(formatData);
+      setLoading(false);
+      setOrders(salesOrderData);
     };
     getSalesOrder();
   }, []);
 
-  useEffect(() => {
-    setOrders(dummyOrders);
-  }, []);
 
   const handleOrderHistoryChange = (e) => setOrderHistory(e.target.value);
   const handleSortByChange = (e) => setSortBy(e.target.value);
@@ -91,7 +92,7 @@ const Sales = () => {
     if (searchText) {
       // setStatusData([])
       filteredOrders = filteredOrders.filter((order) =>
-        order.id.toLowerCase().includes(searchText.toLowerCase())
+        order.id == searchText
       );
     }
 
@@ -119,6 +120,7 @@ const Sales = () => {
   return (
     <div>
       <PageNav />
+
       <div className="container mt-4 fs-4">
         <h2 className="mb-4">SALES ORDER</h2>
         <div className="row mb-3">
@@ -237,7 +239,8 @@ const Sales = () => {
             </tr>
           </thead>
           <tbody>
-            {filterOrders(salesOrderData).map((order) => (
+          {loading ? <div>Loading...</div> : ''}
+            {filterOrders(orders).map((order) => (
               <OrderItem key={order.id} order={order} />
             ))}
           </tbody>

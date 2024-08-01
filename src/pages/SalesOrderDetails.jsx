@@ -1,82 +1,132 @@
-import { useState }  from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Link } from 'react-router-dom';
-import { Dropdown, Input, Autocomplete } from '../components/layout';
-import PageNav from '../components/PageNav';
-import { daysBetween, formatDate } from '../helpers';
-import { dummyOrders as orders } from "../helpers/orderData";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { Input, Dropdown } from "../components/layout";
+import PageNav from "../components/PageNav";
+import { daysBetween, formatDate } from "../helpers";
+import { supabase } from "../supabase";
 
 const SalesOrderDetails = () => {
-    const [values, setValues] = useState({
-        shipDate1: null,
-        shipDate2: null,
-        orderDate: null,
-        dateOfShipment: null,
-        dateOfArrival: null,
-        orderQuantity: null,
-        productUnits: null,
-      });
-
-      let shippedOnTime = '';
-      if (values.dateOfShipment && values.shipDate1) {
-        shippedOnTime = values.dateOfShipment <= values.shipDate1 ? 'Yes' : 'No';
-      }
-    
-      // Logic to disable the button to create a work order
-      let disableButton = true;
-      if (values.productUnits != null && values.orderQuantity != null)
-        disableButton = values.productUnits !== 0 && values.productUnits > values.orderQuantity;
-    
+  const { register, handleSubmit, reset, setValue } = useForm();
+  const [salesOrderData, setSalesData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const { id } = useParams();
-  const order = orders.find((order) => order.id === id);
 
+  useEffect(() => {
+    const fetchSalesData = async () => {
+      try {
+        console.log("Fetching data for sales order ID:", id);
+        const { data, error } = await supabase.from("SalesOrder").select("*").eq("sales_id", id);
+        if (error) {
+          setError("An unexpected error has occurred");
+          console.log("Supabase error:", error);
+        } else if (data && data.length > 0) {
+          const singleSalesOrder = data[0];
+          console.log("Fetched sales order data:", singleSalesOrder);
+          setSalesData(singleSalesOrder);
+
+          // Set form field values
+          Object.keys(singleSalesOrder).forEach((key) => {
+            setValue(key, singleSalesOrder[key]);
+          });
+        } else {
+          setError("No sales order found");
+          console.log("No data found for the given ID");
+        }
+      } catch (error) {
+        setError("Error fetching data from server");
+        console.log("Fetch error:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalesData();
+  }, [id, setValue]);
 
   const navigate = useNavigate();
-  const handleSalesOrderUpdate = () => {
-    navigate("/sales");
+
+  const handleUpdate = async (data) => {
+    // Here we Prepare data for update and remove fields that should not be updated.
+    const updatedData = { ...data };
+    delete updatedData.sales_id;
+    delete updatedData.last_updated_at;
+    delete updatedData.created_at;
+    try {
+      setUpdateLoading(true);
+      const { error } = await supabase.from("SalesOrder").update(updatedData).eq("sales_id", id);
+      if (error) {
+        throw error;
+      }
+      alert("Saved successfully");
+      reset();
+      setUpdateLoading(false);
+      navigate("/sales");
+    } catch (error) {
+      alert(error.message);
+      setUpdateLoading(false);
+    }
+  };
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
-  if (!order) {
-    return <div>Order not found</div>;
+  if (loading) {
+    return <div>Loading...</div>;
   }
+
+  // Logic to disable the button to create a work order
+  let disableButton = true;
+  if (salesOrderData.amount != null && salesOrderData.order_quantity != null)
+    disableButton =
+      salesOrderData.amount !== 0 &&
+      salesOrderData.amount > salesOrderData.order_quantity;
 
   return (
     <div>
       <PageNav />
       <div className="container my-4">
-        <form className={'mt-5 fs-4 row'}>
+        <form className={"mt-5 fs-4 row"} onSubmit={handleSubmit(handleUpdate)}>
           <div className="col-md-6">
-            <Input label="Sales Order" value={order.id}  />
-            <Input label="Client" />
-            <Input label="SKU#" />
-            <Autocomplete
-              label="Product name"
-              options={orders}
-              onChange={(option) => {
-                const [{ stock }] = option;
-                setValues({ ...values, productUnits: stock });
-              }}
+            <Input
+              label="Sales Order"
+              disabled
+              value={salesOrderData.sales_id}
             />
+            <Input register={register} label="Client" name="client" />
+            <Input register={register} label="SKU#" name="sku" />
             <Dropdown
               label="Family"
-              options={['', 'Fam1', 'Fam2', 'Fam3', 'Fam4']}
+              name="family"
+              register={register}
+              options={["", "Fam1", "Fam2", "Fam3", "Fam4"]}
             />
-            <Dropdown label="Sub-family" options={['', 'SubFam1', 'SubFam2']} />
+            <Dropdown
+              label="Sub-family"
+              name="sub_family"
+              register={register}
+              options={["", "SubFam1", "SubFam2"]}
+            />
             <Dropdown
               label="Subject to shelf life?"
-              options={['', 'Yes', 'No']}
+              name="subject_to_shelf_life"
+              register={register}
+              options={["", "Yes", "No"]}
             />
             <div className="d-flex align-items-center gap-4">
               <Input
+                register={register}
+                name="order_quantity"
                 label="Order quantity"
                 type="number"
-                onChange={({ target }) =>
-                  setValues({ ...values, orderQuantity: Number(target.value) })
-                }
               />
               <button
                 className="btn btn-primary fs-5 10"
+                type="button"
                 disabled={disableButton}
               >
                 <Link
@@ -86,122 +136,136 @@ const SalesOrderDetails = () => {
                   Create work order
                 </Link>
               </button>
-              {/* <Link to="/work-order" className="btn btn-primary fs-5 10">
-                Create Work Orders
-              </Link> */}
             </div>
-            <Dropdown label="Partial Shipment" options={['', 'Yes', 'No']} />
-            <Input label="Bal due" />
+            <Dropdown
+              label="Partial Shipment"
+              name="partial_shipment"
+              register={register}
+              options={["", "Yes", "No"]}
+            />
+            <Input register={register} name="bal_due" label="Bal due" />
             <Input
+              register={register}
+              name="order_date"
               label="Order date"
               type="date"
-              onChange={({ target }) =>
-                setValues({ ...values, orderDate: target.value })
-              }
             />
           </div>
           <div className="col-md-6">
             <Input
+              register={register}
+              name="ship_date_1"
               label="Ship Date 1"
               type="date"
-              onChange={({ target }) =>
-                setValues({ ...values, shipDate1: target.value })
-              }
             />
             <Input
+              register={register}
+              name="ship_date_2"
               label="Ship Date 2"
               type="date"
-              onChange={({ target }) => {
-                setValues({ ...values, shipDate2: target.value });
-              }}
             />
             <Input
               label="Count days to sched date 1"
               disabled={true}
-              value={daysBetween(values.shipDate1, formatDate(new Date()))}
+              value={daysBetween(
+                salesOrderData.ship_date_1,
+                formatDate(new Date())
+              )}
             />
             <Input
               label="Count days to sched date 2"
               disabled={true}
-              value={daysBetween(values.shipDate2, formatDate(new Date()))}
+              value={daysBetween(
+                salesOrderData.ship_date_2,
+                formatDate(new Date())
+              )}
             />
-            <Dropdown
-              label="Operation"
-              value={order.status}
-              
-              options={[
-                '',
-                'Work Order',
-                'Purchasing',
-                'Incoming',
-                'Engineering',
-                'Kitting',
-                'Production',
-                'Quality',
-                'FG1',
-                'FG2',
-                'Shipped',
-              ]}
-            />
+
             <Input
+              register={register}
+              name="date_of_ship"
               label="Date of shipment"
-              type="text"
-              value={order.shipmentDate}
-              onChange={({ target }) =>
-                setValues({ ...values, dateOfShipment: target.value })
-              }
-              
+              type="date"
             />
             <Input
               label="Lead Time (from order to shipping)"
               disabled={true}
-              value={daysBetween(values.dateOfShipment, values.orderDate)}
+              value={daysBetween(
+                salesOrderData.date_of_ship,
+                salesOrderData.order_date
+              )}
             />
-            <Input
+
+            <Dropdown
               label="Shipped on time?"
-              disabled={true}
-              value={shippedOnTime}
+              name="was_ship_on_time"
+              register={register}
+              options={["", "Yes", "No"]}
             />
+
             <Dropdown
               label="Status of shipment"
-              value={order.shipmentStatus}
-              options={['', 'Delayed', 'Open', 'Closed', 'On the way', 'Delivered']}
-              
+              register={register}
+              name="status_of_shipment"
+              options={["", "Delayed", "On the way", "Delivered"]}
             />
+
+            <Dropdown
+              label="status"
+              register={register}
+              name="status"
+              options={[
+                "",
+                "Work Order",
+                "Purchasing",
+                "Work Order",
+                "Incoming",
+                "Quality",
+                "Kitting",
+                "Production",
+              ]}
+            />
+
             <Input
+              register={register}
+              name="date_of_arrival"
               label="Date of arrival"
               type="date"
-              onChange={({ target }) =>
-                setValues({ ...values, dateOfArrival: target.value })
-              }
             />
             <Input
               label="Transit time (from shipment to delivery)"
               disabled={true}
               value={daysBetween(
-                values.dateOfArrival,
-                values.dateOfShipment
+                salesOrderData.date_of_arrival,
+                salesOrderData.date_of_ship
               )}
             />
             <Input
               label="Total time"
               disabled={true}
-              value={daysBetween(values.dateOfArrival, values.orderDate)}
+              value={daysBetween(
+                salesOrderData.date_of_arrival,
+                salesOrderData.order_date
+              )}
             />
-            <Input label="Comments" />
+            <Input register={register} name="comments" label="Comments" />
           </div>
 
-          <div className='d-flex gap-3 flex-row-reverse mt-4'>
+          <div className="d-flex gap-3 flex-row-reverse mt-4">
             <button
-              onClick={handleSalesOrderUpdate}
               className="btn btn-primary fs-4 10 w-100"
-              style={{ maxWidth: '200px' }}
+              type="submit"
+              style={{ maxWidth: "200px" }}
             >
-              Save
+              {updateLoading ? "Processing..." : "Save"}
             </button>
             <button
               className="btn btn-outline-primary fs-4 10 w-100"
-              style={{ maxWidth: '200px' }}
+              style={{ maxWidth: "200px" }}
+              type="button"
+              // onClick={() => {
+              //   reset();
+              // }}
             >
               Clear
             </button>
