@@ -58,10 +58,13 @@ function AppLayout() {
       const { error } = await supabase.from("SalesOrder").insert([sanitizedData]);
         if (error) {
           throw error;
+        }else{
+          alert("Product Creation was successful");
+          reset();
+          setSubmitLoading(false);
+          navigate("/sales");
         }
-        alert("Product Creation was successful");
-        reset();
-        navigate("/sales");
+       
     } catch (error) {
       alert("An unexpected error has occurred!");
       console.log("Error creating record in supabase", error)
@@ -179,6 +182,7 @@ function AppLayout() {
                 "Quality",
                 "Kitting",
                 "Production",
+                "Shipping",
               ]}
             />
 
