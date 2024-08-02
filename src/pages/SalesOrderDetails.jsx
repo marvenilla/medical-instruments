@@ -89,7 +89,8 @@ const SalesOrderDetails = () => {
   return (
     <div>
       <PageNav />
-      <div className="container my-4">
+      <div className="d-flex justify-content-center align-items-center mt-4">
+      <div className="container my-4" style={{ maxWidth: '1200px' }}>
         <form className={"mt-5 fs-4 row"} onSubmit={handleSubmit(handleUpdate)}>
           <div className="col-md-6">
             <Input
@@ -272,6 +273,7 @@ const SalesOrderDetails = () => {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 };

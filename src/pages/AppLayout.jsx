@@ -24,7 +24,7 @@ function AppLayout() {
         const lastId = data.length
           ? Math.max(...data.map((order) => order.sales_id))
           : 0;
-          const clientId = data[data.length - 4].client_id;
+          const clientId = data[data.length - 3].client_id;
         setValues((prevValues) => ({
           ...prevValues,
           nextSalesId: lastId + 1,
@@ -76,7 +76,9 @@ function AppLayout() {
   return (
     <div>
       <PageNav />
-      <div className="container my-4">
+      <div className="d-flex justify-content-center align-items-center mt-4">
+
+      <div className="container my-4" style={{ maxWidth: '1200px' }}>
         <form className="mt-5 fs-4 row" onSubmit={handleSubmit(handleSave)}>
           <div className="col-md-6">
             <Input label="Sales Order" disabled value={values.nextSalesId} />
@@ -244,6 +246,7 @@ function AppLayout() {
           </div>
         </form>
       </div>
+    </div>
     </div>
   );
 }
