@@ -17,7 +17,7 @@ const Sales = () => {
       const { data, error } = await supabase
         .from("SalesOrder")
         .select()
-
+        .order('sales_id', { ascending: false });
       if (error) {
         console.log("Error fetching sales order data:", error.message)
         setLoading(false);
@@ -120,8 +120,8 @@ const Sales = () => {
   return (
     <div>
       <PageNav />
-
-      <div className="container mt-4 fs-4">
+      <div className="d-flex justify-content-center align-items-center mt-4">
+      <div className="container fs-4" style={{ maxWidth: '1200px' }}>
         <h2 className="mb-4">SALES ORDER</h2>
         <div className="row mb-3">
           <div className="col-md-6">
@@ -227,6 +227,7 @@ const Sales = () => {
         <table className="table table-bordered">
           <thead className="table-light">
             <tr>
+               <th scope="col">S/N</th>
               <th scope="col">Order #</th>
               <th scope="col">Order Date</th>
               <th scope="col">Client Details</th>
@@ -240,12 +241,13 @@ const Sales = () => {
           </thead>
           <tbody>
           {loading ? <div>Loading...</div> : ''}
-            {filterOrders(orders).map((order) => (
-              <OrderItem key={order.id} order={order} />
+            {filterOrders(orders).map((order, index) => (
+              <OrderItem key={order.id} order={order} index={index} />
             ))}
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 };

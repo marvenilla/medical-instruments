@@ -3,9 +3,11 @@ import PropTypes from "prop-types";
 import "./OrderItem.css";
 import { Link } from "react-router-dom";
 
-const OrderItem = ({ order }) => {
+const OrderItem = ({ order, index }) => {
+
   return (
     <tr>
+      <td>{index + 1}</td>
       <td><Link to={`/sales-order-details/${order.id}`}>{order.id}</Link></td>
       <td>{order.date}</td>
       <td>{order.client}</td>

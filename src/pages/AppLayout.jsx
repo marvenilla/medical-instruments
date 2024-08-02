@@ -41,7 +41,7 @@ function AppLayout() {
       ...data,
       client_id: values.client_id,
    
-      order_date: data.order_date ? new Date(data.order_date).toISOString() : "2024-08-01", // Convert to Date object
+      order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(), // Convert to Date object
       ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString() : null,
       ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
       date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
