@@ -11,6 +11,7 @@ export const Input = ({
   type = "text",
   name = "",
   disabled = false,
+  className = "",
 }) => {
   return (
     <div className="custom-input my-3 w-100">
@@ -20,7 +21,7 @@ export const Input = ({
           disabled={disabled}
           type={type}
           name={name}
-          className="form-control form-control-lg"
+          className={"form-control form-control-lg" + className}
           value={value}
           onChange={onChange}
           placeholder={placeholder}
