@@ -11,21 +11,21 @@ const exampleProducts = [
     product_name: "Item 1",
     sku: "SKU1",
     family: "Family 1",
-    subfamily: "Subfamily 1",
+    sub_family: "Subfamily 1",
     subject_to_shelf_life: "Yes",
     unit: "Unit 1",
     quantity: 10,
-    balance_due: 5,
+    bal_due: 5,
   },
   {
     product_name: "Item 2",
     sku: "SKU2",
     family: "Family 2",
-    subfamily: "Subfamily 2",
+    sub_family: "Subfamily 2",
     subject_to_shelf_life: "No",
     unit: "Unit 2",
     quantity: 5,
-    balance_due: 2.5,
+    bal_due: 2.5,
   },
 ];
 
@@ -63,12 +63,10 @@ function AppLayout() {
   const handleSave = async (data) => {
     // Start by saving the main sales order data
     const sanitizedData = {
+      ...data,
       client_id: values.client_id,
-      order_date: data.order_date
-        ? new Date(data.order_date).toISOString()
-        : new Date().toISOString(),
-      ship_date_1: data.ship_date_1
-        ? new Date(data.ship_date_1).toISOString()
+      order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
+      ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString()
         : null,
       ship_date_2: data.ship_date_2
         ? new Date(data.ship_date_2).toISOString()
@@ -76,24 +74,26 @@ function AppLayout() {
       date_of_ship: data.date_of_ship
         ? new Date(data.date_of_ship).toISOString()
         : null,
-      date_of_arrival: data.date_of_arrival
-        ? new Date(data.date_of_arrival).toISOString()
+      date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString()
         : null,
       total_cost: data.total_cost || 0,
       status: data.status || "Pending",
       currency: "CAD",
     };
 
+    console.log("Sanitized data: ",sanitizedData);
+
     try {
       setSubmitLoading(true);
 
       // Insert the sales order and get the order ID
+     
       const { data: salesOrderData, error } = await supabase
         .from("SalesOrder")
         .insert([sanitizedData])
         .select();
 
-      if (error) throw error;
+      if (error) throw error 
 
       const salesOrderId = salesOrderData[0].sales_id;
 
@@ -105,9 +105,12 @@ function AppLayout() {
 
       const { error: productError } = await supabase
         .from("SalesOrderItems")
-        .insert(productsToSave);
+        .insert([productsToSave]);
 
-      if (productError) throw productError;
+      if (productError){
+        console.log("Error saving in salesorderitems table: ", productsToSave)
+        throw productError;
+      }
 
       alert("Sales order and products saved successfully");
       reset();
