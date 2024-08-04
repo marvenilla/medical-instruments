@@ -5,7 +5,6 @@ import { Dropdown, Input } from "../components/layout";
 import PageNav from "../components/PageNav";
 import { supabase } from "../supabase";
 import { useForm } from "react-hook-form";
-
 const exampleProducts = [
   {
     product_name: "Item 1",
@@ -28,17 +27,16 @@ const exampleProducts = [
     bal_due: 2.5,
   },
 ];
-
 function AppLayout() {
   const [values, setValues] = useState({
     nextSalesId: null,
     client_id: null,
   });
-  const [selectedProducts, setSelectedProducts] = useState(exampleProducts);
+  const [selectedProducts, setSelectedProducts] =
+useState(exampleProducts);
   const [submitLoading, setSubmitLoading] = useState(false);
   const { register, handleSubmit, reset } = useForm();
   const navigate = useNavigate();
-
   useEffect(() => {
     const getNextSalesId = async () => {
       const { data, error } = await supabase
@@ -59,14 +57,15 @@ function AppLayout() {
     };
     getNextSalesId();
   }, []);
-
   const handleSave = async (data) => {
     // Start by saving the main sales order data
     const sanitizedData = {
       ...data,
       client_id: values.client_id,
-      order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
-      ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString()
+      order_date: data.order_date ? new Date(data.order_date).toISOString() :
+new Date().toISOString(),
+      ship_date_1: data.ship_date_1 ? new
+Date(data.ship_date_1).toISOString()
         : null,
       ship_date_2: data.ship_date_2
         ? new Date(data.ship_date_2).toISOString()
@@ -74,44 +73,36 @@ function AppLayout() {
       date_of_ship: data.date_of_ship
         ? new Date(data.date_of_ship).toISOString()
         : null,
-      date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString()
+      date_of_arrival: data.date_of_arrival ? new
+Date(data.date_of_arrival).toISOString()
         : null,
       total_cost: data.total_cost || 0,
       status: data.status || "Pending",
       currency: "CAD",
     };
-
     console.log("Sanitized data: ",sanitizedData);
-
     try {
       setSubmitLoading(true);
-
       // Insert the sales order and get the order ID
-     
+
       const { data: salesOrderData, error } = await supabase
         .from("SalesOrder")
         .insert([sanitizedData])
         .select();
-
-      if (error) throw error 
-
+      if (error) throw error
       const salesOrderId = salesOrderData[0].sales_id;
-
       // Insert each product into the SalesOrderItems table with the sales order ID
       const productsToSave = selectedProducts.map((product) => ({
         sales_order_id: salesOrderId,
         ...product,
       }));
-
       const { error: productError } = await supabase
         .from("SalesOrderItems")
         .insert([productsToSave]);
-
       if (productError){
         console.log("Error saving in salesorderitems table: ", productsToSave)
         throw productError;
       }
-
       alert("Sales order and products saved successfully");
       reset();
       setSubmitLoading(false);
@@ -122,13 +113,13 @@ function AppLayout() {
       setSubmitLoading(false);
     }
   };
-
   return (
     <div>
       <PageNav />
       <div className="d-flex justify-content-center align-items-center mb-4">
         <div className="container" style={{ maxWidth: "1200px" }}>
-          <form className="mt-5 fs-4" onSubmit={handleSubmit(handleSave)}>
+          <form className="mt-5 fs-4"
+onSubmit={handleSubmit(handleSave)}>
             <h2 style={{ fontWeight: "bold" }}>Sales order</h2>
             <Input label="Id" disabled value={values.nextSalesId || ""} />
             <Input
@@ -137,7 +128,6 @@ function AppLayout() {
               name="client"
               defaultValue=""
             />
-
             <hr className="hr my-4" />
             <h2 style={{ fontWeight: "bold" }}>Product</h2>
             <Input
@@ -171,7 +161,6 @@ function AppLayout() {
             <button className="btn btn-primary fs-4" type="button">
               Add product to sale
             </button>
-
             <table>
               <thead>
                 <tr>
@@ -200,7 +189,6 @@ function AppLayout() {
                 ))}
               </tbody>
             </table>
-
             <hr className="hr my-4" />
             <h2 className="mt-4" style={{ fontWeight: "bold" }}>
               Shipment
@@ -212,14 +200,12 @@ function AppLayout() {
               type="date"
               defaultValue=""
             />
-
             <Dropdown
               label="Partial Shipment"
               name="partial_shipment"
               register={register}
               options={["", "Yes", "No"]}
             />
-
             <div className="row">
               <div className="col-md-6">
                 <Input
@@ -256,7 +242,6 @@ function AppLayout() {
                 />
               </div>
             </div>
-
             <Dropdown
               label="Operation Status"
               register={register}
@@ -273,7 +258,6 @@ function AppLayout() {
                 "Shipping",
               ]}
             />
-
             <Input
               register={register}
               name="date_of_ship"
@@ -312,7 +296,6 @@ function AppLayout() {
               label="Comments"
               defaultValue=""
             />
-
             <div className="d-flex gap-3 flex-row-reverse my-4">
               <button
                 className="btn btn-primary fs-4 10 w-100"
@@ -338,5 +321,4 @@ function AppLayout() {
     </div>
   );
 }
-
 export default AppLayout;

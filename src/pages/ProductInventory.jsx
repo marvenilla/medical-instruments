@@ -6,14 +6,26 @@ import { supabase } from '../supabase';
 const ProductInventory = () => {
   const [products, setProducts] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState({ id: null, name: '', quantity: '', price: '', uom: 'Each', category: 'Finished Good', storeRoom: '', location: '', lotNumber: '' });
-  const [editIndex, setEditIndex] = useState(null);
+  const [currentProduct, setCurrentProduct] = useState({
+    id: null,
+    name: '',
+    quantity: '',
+    price: '',
+    sku: '',
+    uom: 'Each',
+    category: 'Finished Good',
+    family: 'Family A',
+    subFamily: 'Subfamily A',
+    subjectToShelfLife: 'Yes',
+    store_room: '',
+    location: '',
+    lot_number: ''
+  });
   const [filterCategory, setFilterCategory] = useState('');
   const [filterId, setFilterId] = useState('');
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch products from the database when the component mounts
     const fetchProducts = async () => {
       const fetchResult = await supabase
         .from('Product')
@@ -54,11 +66,15 @@ const ProductInventory = () => {
           name: newProduct.name,
           quantity: newProduct.quantity,
           price: newProduct.price,
+          sku: newProduct.sku,
           unit_of_measure: newProduct.uom,
           category: newProduct.category,
-          store_room: newProduct.storeRoom,
+          family: newProduct.family,
+          sub_family: newProduct.subFamily,
+          subject_to_shelf_life: newProduct.subjectToShelfLife,
+          store_room: newProduct.store_room,
           location: newProduct.location,
-          lot_number: newProduct.lotNumber,
+          lot_number: newProduct.lot_number,
         }
       ]);
 
@@ -67,7 +83,6 @@ const ProductInventory = () => {
       return;
     }
 
-    // Fetch the updated list of products from the database
     const fetchResult = await supabase
       .from('Product')
       .select('*');
@@ -78,28 +93,102 @@ const ProductInventory = () => {
     }
 
     setProducts(fetchResult.data);
-    setCurrentProduct({ id: null, name: '', quantity: '', price: '', uom: 'Each', category: 'Finished Good', storeRoom: '', location: '', lotNumber: '' });
+    setCurrentProduct({
+      id: null,
+      name: '',
+      quantity: '',
+      price: '',
+      sku: '',
+      uom: 'Each',
+      category: 'Finished Good',
+      family: 'Family A',
+      subFamily: 'Subfamily A',
+      subjectToShelfLife: 'Yes',
+      store_room: '',
+      location: '',
+      lot_number: ''
+    });
   };
 
-  const handleSaveProduct = () => {
-    const updatedProducts = products.map((product, index) =>
-      index === editIndex ? currentProduct : product
-    );
-    setProducts(updatedProducts);
+  const handleSaveProduct = async () => {
+    const updateResult = await supabase
+      .from('Product')
+      .update({
+        name: currentProduct.name,
+        quantity: currentProduct.quantity,
+        price: currentProduct.price,
+        sku: currentProduct.sku,
+        unit_of_measure: currentProduct.uom,
+        category: currentProduct.category,
+        family: currentProduct.family,
+        sub_family: currentProduct.subFamily,
+        subject_to_shelf_life: currentProduct.subjectToShelfLife,
+        store_room: currentProduct.store_room,
+        location: currentProduct.location,
+        lot_number: currentProduct.lot_number,
+      })
+      .eq('id', currentProduct.id);
+
+    if (updateResult.error) {
+      setError(updateResult.error.message);
+      return;
+    }
+
+    const fetchResult = await supabase
+      .from('Product')
+      .select('*');
+
+    if (fetchResult.error) {
+      setError(fetchResult.error.message);
+      return;
+    }
+
+    setProducts(fetchResult.data);
     setShowModal(false);
-    setCurrentProduct({ id: null, name: '', quantity: '', price: '', uom: 'Each', category: 'Finished Good', storeRoom: '', location: '', lotNumber: '' });
-    setEditIndex(null);
+    setCurrentProduct({
+      id: null,
+      name: '',
+      quantity: '',
+      price: '',
+      sku: '',
+      uom: 'Each',
+      category: 'Finished Good',
+      family: 'Family A',
+      subFamily: 'Subfamily A',
+      subjectToShelfLife: 'Yes',
+      store_room: '',
+      location: '',
+      lot_number: ''
+    });
   };
 
-  const handleEditProduct = (index) => {
-    setCurrentProduct(products[index]);
-    setEditIndex(index);
+  const handleEditProduct = (id) => {
+    const productToEdit = products.find(product => product.id === id);
+    setCurrentProduct(productToEdit);
     setShowModal(true);
   };
 
-  const handleDeleteProduct = (index) => {
-    const updatedProducts = products.filter((_, i) => i !== index);
-    setProducts(updatedProducts);
+  const handleDeleteProduct = async (id) => {
+    const deleteResult = await supabase
+      .from('Product')
+      .delete()
+      .eq('id', id);
+
+    if (deleteResult.error) {
+      setError(deleteResult.error.message);
+      return;
+    }
+
+    const fetchResult = await supabase
+      .from('Product')
+      .select('*');
+
+    if (fetchResult.error) {
+      setError(fetchResult.error.message);
+      return;
+    }
+
+    setProducts(fetchResult.data);
   };
 
   const filteredProducts = products.filter(product => {
@@ -122,7 +211,7 @@ const ProductInventory = () => {
           <input className='product-input'
             type="text"
             name="name"
-            value={currentProduct.name}
+            value={currentProduct.name || ''}
             onChange={handleInputChange}
             placeholder="Enter product name"
           />
@@ -133,7 +222,7 @@ const ProductInventory = () => {
           <input className='product-input'
             type="number"
             name="quantity"
-            value={currentProduct.quantity}
+            value={currentProduct.quantity || ''}
             onChange={handleInputChange}
             placeholder="Enter quantity"
           />
@@ -144,9 +233,20 @@ const ProductInventory = () => {
           <input className='product-input'
             type="number"
             name="price"
-            value={currentProduct.price}
+            value={currentProduct.price || ''}
             onChange={handleInputChange}
             placeholder="Enter price"
+          />
+        </div>
+
+        <div className="form-group">
+          <label className='product-label'>SKU</label>
+          <input className='product-input'
+            type="text"
+            name="sku"
+            value={currentProduct.sku || ''}
+            onChange={handleInputChange}
+            placeholder="Enter SKU"
           />
         </div>
 
@@ -154,7 +254,7 @@ const ProductInventory = () => {
           <label className='product-label'>Unit of Measure</label>
           <select className='product-input'
             name="uom"
-            value={currentProduct.uom}
+            value={currentProduct.uom || 'Each'}
             onChange={handleInputChange}
           >
             <option value="Each">Each</option>
@@ -167,7 +267,7 @@ const ProductInventory = () => {
           <label className='product-label'>Category</label>
           <select className='product-input'
             name="category"
-            value={currentProduct.category}
+            value={currentProduct.category || 'Finished Good'}
             onChange={handleInputChange}
           >
             <option value="Finished Good">Finished Good</option>
@@ -176,11 +276,53 @@ const ProductInventory = () => {
         </div>
 
         <div className="form-group">
+          <label className='product-label'>Family</label>
+          <select className='product-input'
+            name="family"
+            value={currentProduct.family || 'Family A'}
+            onChange={handleInputChange}
+          >
+            <option value="Family A">Family A</option>
+            <option value="Family B">Family B</option>
+            <option value="Family C">Family C</option>
+            <option value="Family D">Family D</option>
+            <option value="Family E">Family E</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label className='product-label'>Subfamily</label>
+          <select className='product-input'
+            name="subFamily"
+            value={currentProduct.subFamily || 'Subfamily A'}
+            onChange={handleInputChange}
+          >
+            <option value="Subfamily A">Subfamily A</option>
+            <option value="Subfamily B">Subfamily B</option>
+            <option value="Subfamily C">Subfamily C</option>
+            <option value="Subfamily D">Subfamily D</option>
+            <option value="Subfamily E">Subfamily E</option>
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label className='product-label'>Subject To Shelf Life?</label>
+          <select className='product-input'
+            name="subjectToShelfLife"
+            value={currentProduct.subjectToShelfLife || 'Yes'}
+            onChange={handleInputChange}
+          >
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+
+        <div className="form-group">
           <label className='product-label'>Store Room</label>
           <input className='product-input'
             type="text"
-            name="storeRoom"
-            value={currentProduct.storeRoom}
+            name="store_room"
+            value={currentProduct.store_room || ''}
             onChange={handleInputChange}
             placeholder="Enter store room"
           />
@@ -191,7 +333,7 @@ const ProductInventory = () => {
           <input className='product-input'
             type="text"
             name="location"
-            value={currentProduct.location}
+            value={currentProduct.location || ''}
             onChange={handleInputChange}
             placeholder="Enter location"
           />
@@ -201,8 +343,8 @@ const ProductInventory = () => {
           <label className='product-label'>Lot Number</label>
           <input className='product-input'
             type="text"
-            name="lotNumber"
-            value={currentProduct.lotNumber}
+            name="lot_number"
+            value={currentProduct.lot_number || ''}
             onChange={handleInputChange}
             placeholder="Enter lot number"
           />
@@ -238,8 +380,12 @@ const ProductInventory = () => {
               <th>Name</th>
               <th>Quantity</th>
               <th>Price</th>
+              <th>SKU</th>
               <th>Unit of Measure</th>
               <th>Category</th>
+              <th>Family</th>
+              <th>Subfamily</th>
+              <th>Subject To Shelf Life?</th>
               <th>Store Room</th>
               <th>Location</th>
               <th>Lot Number</th>
@@ -247,20 +393,24 @@ const ProductInventory = () => {
             </tr>
           </thead>
           <tbody>
-          {filteredProducts.map((product, index) => (
-              <tr key={index}>
+            {filteredProducts.map(product => (
+              <tr key={product.id}>
                 <td>{product.id}</td>
                 <td>{product.name}</td>
                 <td>{product.quantity}</td>
                 <td>{product.price}</td>
+                <td>{product.sku}</td>
                 <td>{product.unit_of_measure}</td>
                 <td>{product.category}</td>
+                <td>{product.family}</td>
+                <td>{product.sub_family}</td>
+                <td>{product.subject_to_shelf_life}</td>
                 <td>{product.store_room}</td>
                 <td>{product.location}</td>
                 <td>{product.lot_number}</td>
                 <td>
-                  <button onClick={() => handleEditProduct(index)}>Edit</button>
-                  <button onClick={() => handleDeleteProduct(index)}>Delete</button>
+                  <button onClick={() => handleEditProduct(product.id)}>Edit</button>
+                  <button onClick={() => handleDeleteProduct(product.id)}>Delete</button>
                 </td>
               </tr>
             ))}
@@ -279,7 +429,7 @@ const ProductInventory = () => {
             <input
               type="text"
               name="name"
-              value={currentProduct.name}
+              value={currentProduct.name || ''}
               onChange={handleInputChange}
               placeholder="Enter product name"
             />
@@ -290,7 +440,7 @@ const ProductInventory = () => {
             <input
               type="number"
               name="quantity"
-              value={currentProduct.quantity}
+              value={currentProduct.quantity || ''}
               onChange={handleInputChange}
               placeholder="Enter quantity"
             />
@@ -301,9 +451,20 @@ const ProductInventory = () => {
             <input
               type="number"
               name="price"
-              value={currentProduct.price}
+              value={currentProduct.price || ''}
               onChange={handleInputChange}
               placeholder="Enter price"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>SKU</label>
+            <input
+              type="text"
+              name="sku"
+              value={currentProduct.sku || ''}
+              onChange={handleInputChange}
+              placeholder="Enter SKU"
             />
           </div>
 
@@ -311,7 +472,7 @@ const ProductInventory = () => {
             <label>Unit of Measure</label>
             <select
               name="uom"
-              value={currentProduct.uom}
+              value={currentProduct.uom || 'Each'}
               onChange={handleInputChange}
             >
               <option value="Each">Each</option>
@@ -324,7 +485,7 @@ const ProductInventory = () => {
             <label>Category</label>
             <select
               name="category"
-              value={currentProduct.category}
+              value={currentProduct.category || 'Finished Good'}
               onChange={handleInputChange}
             >
               <option value="Finished Good">Finished Good</option>
@@ -333,11 +494,53 @@ const ProductInventory = () => {
           </div>
 
           <div className="form-group">
+            <label>Family</label>
+            <select
+              name="family"
+              value={currentProduct.family || 'Family A'}
+              onChange={handleInputChange}
+            >
+              <option value="Family A">Family A</option>
+              <option value="Family B">Family B</option>
+              <option value="Family C">Family C</option>
+              <option value="Family D">Family D</option>
+              <option value="Family E">Family E</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Subfamily</label>
+            <select
+              name="subFamily"
+              value={currentProduct.subFamily || 'Subfamily A'}
+              onChange={handleInputChange}
+            >
+              <option value="Subfamily A">Subfamily A</option>
+              <option value="Subfamily B">Subfamily B</option>
+              <option value="Subfamily C">Subfamily C</option>
+              <option value="Subfamily D">Subfamily D</option>
+              <option value="Subfamily E">Subfamily E</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Subject To Shelf Life?</label>
+            <select
+              name="subjectToShelfLife"
+              value={currentProduct.subjectToShelfLife || 'Yes'}
+              onChange={handleInputChange}
+            >
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+
+          <div className="form-group">
             <label>Store Room</label>
             <input
               type="text"
-              name="storeRoom"
-              value={currentProduct.storeRoom}
+              name="store_room"
+              value={currentProduct.store_room || ''}
               onChange={handleInputChange}
               placeholder="Enter store room"
             />
@@ -348,7 +551,7 @@ const ProductInventory = () => {
             <input
               type="text"
               name="location"
-              value={currentProduct.location}
+              value={currentProduct.location || ''}
               onChange={handleInputChange}
               placeholder="Enter location"
             />
@@ -358,8 +561,8 @@ const ProductInventory = () => {
             <label>Lot Number</label>
             <input
               type="text"
-              name="lotNumber"
-              value={currentProduct.lotNumber}
+              name="lot_number"
+              value={currentProduct.lot_number || ''}
               onChange={handleInputChange}
               placeholder="Enter lot number"
             />
