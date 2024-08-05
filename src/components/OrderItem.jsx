@@ -4,7 +4,6 @@ import "./OrderItem.css";
 import { Link } from "react-router-dom";
 
 const OrderItem = ({ order, index }) => {
-
   return (
     <tr>
       <td>{index + 1}</td>
@@ -12,7 +11,7 @@ const OrderItem = ({ order, index }) => {
       <td>{order.date}</td>
       <td>{order.client}</td>
       <td>{order.description}</td>
-      <td>CAD {order.amount?.toFixed(2)}</td>
+      <td>CAD {order.amount ? order.amount.toFixed(2) : "0.00"}</td>
       <td className={`status ${order.status?.toLowerCase()}`}>{order.status}</td>
       <td>{order.shipmentStatus}</td>
       <td>{order.shipmentDate}</td>
@@ -27,8 +26,11 @@ OrderItem.propTypes = {
     amount: PropTypes.number.isRequired,
     status: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    items: PropTypes.string.isRequired,
+    client: PropTypes.string.isRequired,
+    shipmentStatus: PropTypes.string.isRequired,
+    shipmentDate: PropTypes.string.isRequired,
   }).isRequired,
+  index: PropTypes.number.isRequired,
 };
 
 export default OrderItem;
