@@ -5,48 +5,40 @@ import { Dropdown, Input } from "../components/layout";
 import PageNav from "../components/PageNav";
 import { supabase } from "../supabase";
 import { useForm } from "react-hook-form";
-const exampleProducts = [
-  {
-    product_name: "Item 1",
-    sku: "SKU1",
-    family: "Family 1",
-    sub_family: "Subfamily 1",
-    subject_to_shelf_life: "Yes",
-    unit: "Unit 1",
-    quantity: 10,
-    bal_due: 5,
-  },
-  {
-    product_name: "Item 2",
-    sku: "SKU2",
-    family: "Family 2",
-    sub_family: "Subfamily 2",
-    subject_to_shelf_life: "No",
-    unit: "Unit 2",
-    quantity: 5,
-    bal_due: 2.5,
-  },
-];
-function AppLayout() {
+import { Modal, Button } from 'react-bootstrap';
+import './AppLayout.module.css';
+
+const AppLayout = () => {
   const [values, setValues] = useState({
     nextSalesId: null,
     client_id: null,
   });
-  const [selectedProducts, setSelectedProducts] =
-useState(exampleProducts);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [currentProduct, setCurrentProduct] = useState({
+    id: null,
+    product_name: "",
+    sku: "",
+    family: "",
+    sub_family: "",
+    subject_to_shelf_life: "",
+    quantity: "",
+    order_quantity: "",
+    bal_due: "",
+  });
+  const [suggestions, setSuggestions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue, watch } = useForm();
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+
   useEffect(() => {
     const getNextSalesId = async () => {
-      const { data, error } = await supabase
-        .from("SalesOrder")
-        .select("sales_id, client_id");
+      const { data, error } = await supabase.from("SalesOrder").select("sales_id, client_id");
       if (error) console.log("Error loading sales", error);
       else {
-        const lastId = data.length
-          ? Math.max(...data.map((order) => order.sales_id))
-          : 0;
+        const lastId = data.length ? Math.max(...data.map((order) => order.sales_id)) : 0;
         const clientId = data[data.length - 3]?.client_id || null;
         setValues((prevValues) => ({
           ...prevValues,
@@ -55,71 +47,201 @@ useState(exampleProducts);
         }));
       }
     };
-    getNextSalesId();
-  }, []);
-  const handleSave = async (data) => {
-    // Start by saving the main sales order data
-    const sanitizedData = {
-      ...data,
-      client_id: values.client_id,
-      order_date: data.order_date ? new Date(data.order_date).toISOString() :
-new Date().toISOString(),
-      ship_date_1: data.ship_date_1 ? new
-Date(data.ship_date_1).toISOString()
-        : null,
-      ship_date_2: data.ship_date_2
-        ? new Date(data.ship_date_2).toISOString()
-        : null,
-      date_of_ship: data.date_of_ship
-        ? new Date(data.date_of_ship).toISOString()
-        : null,
-      date_of_arrival: data.date_of_arrival ? new
-Date(data.date_of_arrival).toISOString()
-        : null,
-      total_cost: data.total_cost || 0,
-      status: data.status || "Pending",
-      currency: "CAD",
-    };
-    console.log("Sanitized data: ",sanitizedData);
-    try {
-      setSubmitLoading(true);
-      // Insert the sales order and get the order ID
 
-      const { data: salesOrderData, error } = await supabase
-        .from("SalesOrder")
-        .insert([sanitizedData])
-        .select();
-      if (error) throw error
-      const salesOrderId = salesOrderData[0].sales_id;
-      // Insert each product into the SalesOrderItems table with the sales order ID
-      const productsToSave = selectedProducts.map((product) => ({
-        sales_order_id: salesOrderId,
-        ...product,
-      }));
-      const { error: productError } = await supabase
-        .from("SalesOrderItems")
-        .insert([productsToSave]);
-      if (productError){
-        console.log("Error saving in salesorderitems table: ", productsToSave)
-        throw productError;
+    const fetchProducts = async () => {
+      const fetchResult = await supabase.from("Product").select("*");
+
+      if (fetchResult.error) {
+        console.log("Error fetching products:", fetchResult.error.message);
+      } else {
+        setProducts(fetchResult.data);
       }
-      alert("Sales order and products saved successfully");
-      reset();
-      setSubmitLoading(false);
-      navigate("/sales");
-    } catch (error) {
-      alert("An unexpected error has occurred!");
-      console.log("Error creating record in Supabase", error);
-      setSubmitLoading(false);
+    };
+
+    getNextSalesId();
+    fetchProducts();
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentProduct({ ...currentProduct, [name]: value });
+
+    if (name === "product_name") {
+      const matchingProducts = products.filter((p) => p.name.toLowerCase().includes(value.toLowerCase()));
+      setSuggestions(matchingProducts);
+
+      const product = products.find((p) => p.name === value);
+      if (product) {
+        setCurrentProduct({
+          ...currentProduct,
+          product_name: value,
+          sku: product.sku,
+          family: product.family,
+          sub_family: product.sub_family,
+          subject_to_shelf_life: product.subject_to_shelf_life,
+          quantity: product.quantity,
+          order_quantity: currentProduct.order_quantity,
+          bal_due: product.quantity - currentProduct.order_quantity,
+        });
+      } else {
+        setCurrentProduct({
+          ...currentProduct,
+          product_name: value,
+          sku: "",
+          family: "",
+          sub_family: "",
+          subject_to_shelf_life: "",
+          quantity: "",
+          order_quantity: "",
+          bal_due: "",
+        });
+      }
+    }
+
+    if (name === "order_quantity") {
+      const product = products.find((p) => p.name === currentProduct.product_name);
+      if (product) {
+        const balanceDue = product.quantity - value;
+        setCurrentProduct({ ...currentProduct, bal_due: balanceDue, order_quantity: value });
+      }
     }
   };
+
+  const handleSuggestionClick = (product) => {
+    setCurrentProduct({
+      ...currentProduct,
+      product_name: product.name,
+      sku: product.sku,
+      family: product.family,
+      sub_family: product.sub_family,
+      subject_to_shelf_life: product.subject_to_shelf_life,
+      quantity: product.quantity,
+      order_quantity: currentProduct.order_quantity,
+      bal_due: product.quantity - currentProduct.order_quantity,
+    });
+    setSuggestions([]);
+  };
+
+  const handleAddProduct = () => {
+    const product = products.find((p) => p.name === currentProduct.product_name);
+    if (product) {
+      const updatedProduct = {
+        ...product,
+        order_quantity: currentProduct.order_quantity,
+        bal_due: currentProduct.bal_due,
+      };
+      const newSelectedProducts = [...selectedProducts, updatedProduct];
+      console.log('Adding product to selectedProducts:', newSelectedProducts); // Debug message
+      setSelectedProducts(newSelectedProducts);
+      setCurrentProduct({
+        id: null,
+        product_name: "",
+        sku: "",
+        family: "",
+        sub_family: "",
+        subject_to_shelf_life: "",
+        quantity: "",
+        order_quantity: "",
+        bal_due: "",
+      });
+    } else {
+      console.log("Product not found");
+    }
+  };
+
+  const handleEditProduct = (index) => {
+    setEditIndex(index);
+    const productToEdit = selectedProducts[index];
+    setCurrentProduct({
+      id: productToEdit.id,
+      product_name: productToEdit.name,
+      sku: productToEdit.sku,
+      family: productToEdit.family,
+      sub_family: productToEdit.sub_family,
+      subject_to_shelf_life: productToEdit.subject_to_shelf_life,
+      quantity: productToEdit.quantity,
+      order_quantity: productToEdit.order_quantity || '',
+      bal_due: productToEdit.bal_due || '',
+    });
+    setShowModal(true);
+  };
+
+  const handleDeleteProduct = (index) => {
+    const updatedProducts = selectedProducts.filter((_, i) => i !== index);
+    console.log('Deleting product from selectedProducts:', updatedProducts); // Debug message
+    setSelectedProducts(updatedProducts);
+  };
+
+  const handleModalSave = () => {
+    const updatedProducts = [...selectedProducts];
+    updatedProducts[editIndex] = {
+      ...currentProduct,
+      name: currentProduct.product_name, // Ensure name is updated
+    };
+    console.log('Updating product in selectedProducts:', updatedProducts); // Debug message
+    setSelectedProducts(updatedProducts);
+    setShowModal(false);
+    setCurrentProduct({
+      id: null,
+      product_name: "",
+      sku: "",
+      family: "",
+      sub_family: "",
+      subject_to_shelf_life: "",
+      quantity: "",
+      order_quantity: "",
+      bal_due: "",
+    });
+    setEditIndex(null);
+  };
+
+  const handleSave = async (data) => {
+    // Comment out the code related to saving fetched data
+    // const sanitizedData = {
+    //   ...data,
+    //   client_id: values.client_id,
+    //   order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
+    //   ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString() : null,
+    //   ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
+    //   date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
+    //   date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
+    //   total_cost: data.total_cost || 0,
+    //   status: data.status || "Pending",
+    //   currency: "CAD",
+    // };
+    // try {
+    //   setSubmitLoading(true);
+    //   const { data: salesOrderData, error } = await supabase
+    //     .from("SalesOrder")
+    //     .insert([sanitizedData])
+    //     .select();
+    //   if (error) throw error;
+    //   const salesOrderId = salesOrderData[0].sales_id;
+    //   const productsToSave = selectedProducts.map((product) => ({
+    //     sales_order_id: salesOrderId,
+    //     ...product,
+    //   }));
+    //   const { error: productError } = await supabase
+    //     .from("SalesOrderItems")
+    //     .insert(productsToSave);
+    //   if (productError) throw productError;
+    //   alert("Sales order and products saved successfully");
+    //   reset();
+    //   setSubmitLoading(false);
+    //   navigate("/sales");
+    // } catch (error) {
+    //   alert("An unexpected error has occurred!");
+    //   console.log("Error creating record in Supabase", error);
+    //   setSubmitLoading(false);
+    // }
+  };
+
   return (
     <div>
       <PageNav />
       <div className="d-flex justify-content-center align-items-center mb-4">
         <div className="container" style={{ maxWidth: "1200px" }}>
-          <form className="mt-5 fs-4"
-onSubmit={handleSubmit(handleSave)}>
+          <form className="mt-5 fs-4" onSubmit={handleSubmit(handleSave)}>
             <h2 style={{ fontWeight: "bold" }}>Sales order</h2>
             <Input label="Id" disabled value={values.nextSalesId || ""} />
             <Input
@@ -130,35 +252,64 @@ onSubmit={handleSubmit(handleSave)}>
             />
             <hr className="hr my-4" />
             <h2 style={{ fontWeight: "bold" }}>Product</h2>
+            <div className="form-group">
+              <label className="product-label">Product name</label>
+              <input
+                className="product-input"
+                type="text"
+                name="product_name"
+                value={currentProduct.product_name}
+                onChange={handleInputChange}
+              />
+              {suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map((product, index) => (
+                    <li key={index} onClick={() => handleSuggestionClick(product)}>
+                      {product.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <Input
-              label="Product name"
-              name="product_name"
-              register={register}
-              defaultValue=""
-            />
-            <Input
-              register={register}
-              name="stock"
-              label="Stock"
-              type="number"
+              label="SKU"
+              name="sku"
+              value={currentProduct.sku}
               disabled
-              defaultValue=""
             />
             <Input
-              register={register}
+              label="Family"
+              name="family"
+              value={currentProduct.family}
+              disabled
+            />
+            <Input
+              label="Subfamily"
+              name="sub_family"
+              value={currentProduct.sub_family}
+              disabled
+            />
+            <Input
+              label="Subject to Shelf Life"
+              name="subject_to_shelf_life"
+              value={currentProduct.subject_to_shelf_life}
+              disabled
+            />
+            <Input
               name="order_quantity"
               label="Order quantity"
               type="number"
-              defaultValue=""
+              value={currentProduct.order_quantity}
+              onChange={handleInputChange}
             />
             <Input
-              register={register}
               name="bal_due"
               label="Bal due"
               disabled
-              defaultValue=""
+              value={currentProduct.bal_due}
+              onChange={handleInputChange}
             />
-            <button className="btn btn-primary fs-4" type="button">
+            <button className="btn btn-primary fs-4" type="button" onClick={handleAddProduct}>
               Add product to sale
             </button>
             <table>
@@ -169,22 +320,25 @@ onSubmit={handleSubmit(handleSave)}>
                   <th>Family</th>
                   <th>Subfamily</th>
                   <th>Subject to Shelf Life</th>
-                  <th>Unit</th>
-                  <th>Quantity</th>
+                  <th>Order Quantity</th>
                   <th>Balance Due</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedProducts.map((product, index) => (
                   <tr key={index}>
-                    <td>{product.product_name}</td>
+                    <td>{product.name}</td>
                     <td>{product.sku}</td>
                     <td>{product.family}</td>
-                    <td>{product.subfamily}</td>
+                    <td>{product.sub_family}</td>
                     <td>{product.subject_to_shelf_life}</td>
-                    <td>{product.unit}</td>
-                    <td>{product.quantity}</td>
-                    <td>{product.balance_due}</td>
+                    <td>{product.order_quantity}</td>
+                    <td>{product.bal_due}</td>
+                    <td>
+                      <button onClick={() => handleEditProduct(index)}>Edit</button>
+                      <button onClick={() => handleDeleteProduct(index)}>Delete</button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -250,7 +404,7 @@ onSubmit={handleSubmit(handleSave)}>
                 "",
                 "Work Order - Initial",
                 "Purchasing",
-                "Work Order - Secondary", // Ensure unique keys
+                "Work Order - Secondary",
                 "Incoming",
                 "Quality",
                 "Kitting",
@@ -318,7 +472,54 @@ onSubmit={handleSubmit(handleSave)}>
           </form>
         </div>
       </div>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Product</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="form-group">
+            <label className="product-label">Product name</label>
+            <input
+              className="product-input"
+              type="text"
+              name="product_name"
+              value={currentProduct.product_name}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label className="product-label">Order quantity</label>
+            <input
+              className="product-input"
+              type="number"
+              name="order_quantity"
+              value={currentProduct.order_quantity}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label className="product-label">Bal due</label>
+            <input
+              className="product-input"
+              type="text"
+              name="bal_due"
+              value={currentProduct.bal_due}
+              disabled
+            />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleModalSave}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
-}
+};
+
 export default AppLayout;
