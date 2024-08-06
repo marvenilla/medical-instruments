@@ -92,13 +92,14 @@ const SalesOrderDetails = () => {
       <div className="d-flex justify-content-center align-items-center mt-4">
       <div className="container my-4" style={{ maxWidth: '1200px' }}>
         <form className={"mt-5 fs-4 row"} onSubmit={handleSubmit(handleUpdate)}>
-          <div className="col-md-6">
+         
             <Input
               label="Sales Order"
               disabled
               value={salesOrderData.sales_id}
             />
-            <Input register={register} label="Client" name="client" />
+            <Input register={register} label="Client name" name="client" />
+            <hr className="hr my-4" />
             <Input register={register} label="SKU#" name="sku" />
             <Dropdown
               label="Family"
@@ -151,8 +152,7 @@ const SalesOrderDetails = () => {
               label="Order date"
               type="date"
             />
-          </div>
-          <div className="col-md-6">
+         
             <Input
               register={register}
               name="ship_date_1"
@@ -250,7 +250,7 @@ const SalesOrderDetails = () => {
               )}
             />
             <Input register={register} name="comments" label="Comments" />
-          </div>
+        
 
           <div className="d-flex gap-3 flex-row-reverse mt-4">
             <button

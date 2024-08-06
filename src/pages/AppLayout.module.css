@@ -6,7 +6,7 @@
   position: relative;
 }
 
-ul.suggestions-list {
+/* ul.suggestions-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -26,6 +26,23 @@ ul.suggestions-list li {
 
 ul.suggestions-list li:hover {
   background: #f0f0f0;
+} */
+
+
+ul {
+  list-style: none; 
+  padding: 0;
+  margin: 0; 
+}
+
+ul li {
+  padding: 5px 10px; 
+  cursor: pointer;
+  border-bottom: 1px solid #ddd;
+}
+
+ul li:hover {
+  background-color: #eee; 
 }
 
 

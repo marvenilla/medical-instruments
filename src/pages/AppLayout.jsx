@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dropdown, Input } from "../components/layout";
@@ -28,7 +27,7 @@ const AppLayout = () => {
   });
   const [suggestions, setSuggestions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const { register, handleSubmit, reset, setValue, watch } = useForm();
+  const { register, reset, handleSubmit } = useForm();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
@@ -197,44 +196,45 @@ const AppLayout = () => {
 
   const handleSave = async (data) => {
     // Comment out the code related to saving fetched data
-    // const sanitizedData = {
-    //   ...data,
-    //   client_id: values.client_id,
-    //   order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
-    //   ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString() : null,
-    //   ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
-    //   date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
-    //   date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
-    //   total_cost: data.total_cost || 0,
-    //   status: data.status || "Pending",
-    //   currency: "CAD",
-    // };
-    // try {
-    //   setSubmitLoading(true);
-    //   const { data: salesOrderData, error } = await supabase
-    //     .from("SalesOrder")
-    //     .insert([sanitizedData])
-    //     .select();
-    //   if (error) throw error;
-    //   const salesOrderId = salesOrderData[0].sales_id;
-    //   const productsToSave = selectedProducts.map((product) => ({
-    //     sales_order_id: salesOrderId,
-    //     ...product,
-    //   }));
-    //   const { error: productError } = await supabase
-    //     .from("SalesOrderItems")
-    //     .insert(productsToSave);
-    //   if (productError) throw productError;
-    //   alert("Sales order and products saved successfully");
-    //   reset();
-    //   setSubmitLoading(false);
-    //   navigate("/sales");
-    // } catch (error) {
-    //   alert("An unexpected error has occurred!");
-    //   console.log("Error creating record in Supabase", error);
-    //   setSubmitLoading(false);
-    // }
+    const sanitizedData = {
+      ...data,
+      client_id: values.client_id,
+      order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
+      ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString() : null,
+      ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
+      date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
+      date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
+      total_cost: data.total_cost || 0,
+      status: data.status || "Pending",
+      currency: "CAD",
+    };
+    try {
+      setSubmitLoading(true);
+      const { error } = await supabase
+        .from("SalesOrder")
+        .insert([sanitizedData])
+        .select();
+      if (error) throw error;
+      // const salesOrderId = salesOrderData[0].sales_id;
+      // const productsToSave = selectedProducts.map((product) => ({
+      //   sales_order_id: salesOrderId,
+      //   ...product,
+      // }));
+      // const { error: productError } = await supabase
+      //   .from("SalesOrderItems")
+      //   .insert(productsToSave);
+      // if (productError) throw productError;
+      alert("Sales order and products saved successfully");
+      reset();
+      setSubmitLoading(false);
+      navigate("/sales");
+    } catch (error) {
+      alert("An unexpected error has occurred!");
+      console.log("Error creating record in Supabase", error);
+      setSubmitLoading(false);
+    }
   };
+  
 
   return (
     <div>
@@ -262,11 +262,12 @@ const AppLayout = () => {
                 onChange={handleInputChange}
               />
               {suggestions.length > 0 && (
-                <ul className="suggestions-list">
+                <ul>
                   {suggestions.map((product, index) => (
                     <li key={index} onClick={() => handleSuggestionClick(product)}>
-                      {product.name}
+                       {product.name}
                     </li>
+                 
                   ))}
                 </ul>
               )}
@@ -336,7 +337,7 @@ const AppLayout = () => {
                     <td>{product.order_quantity}</td>
                     <td>{product.bal_due}</td>
                     <td>
-                      <button onClick={() => handleEditProduct(index)}>Edit</button>
+                      <button type="button" onClick={() => handleEditProduct(index)}>Edit</button>
                       <button onClick={() => handleDeleteProduct(index)}>Delete</button>
                     </td>
                   </tr>
