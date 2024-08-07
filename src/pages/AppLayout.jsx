@@ -10,7 +10,6 @@ import './AppLayout.module.css';
 const AppLayout = () => {
   const [values, setValues] = useState({
     nextSalesId: null,
-    client_id: null,
   });
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [products, setProducts] = useState([]);
@@ -34,15 +33,13 @@ const AppLayout = () => {
 
   useEffect(() => {
     const getNextSalesId = async () => {
-      const { data, error } = await supabase.from("SalesOrder").select("sales_id, client_id");
+      const { data, error } = await supabase.from("SalesOrder").select("sales_id");
       if (error) console.log("Error loading sales", error);
       else {
         const lastId = data.length ? Math.max(...data.map((order) => order.sales_id)) : 0;
-        const clientId = data[data.length - 3]?.client_id || null;
         setValues((prevValues) => ({
           ...prevValues,
-          nextSalesId: lastId + 1,
-          client_id: clientId,
+          nextSalesId: lastId + 1
         }));
       }
     };
@@ -195,10 +192,8 @@ const AppLayout = () => {
   };
 
   const handleSave = async (data) => {
-    // Comment out the code related to saving fetched data
     const sanitizedData = {
       ...data,
-      client_id: values.client_id,
       order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
       ship_date_1: data.ship_date_1 ? new Date(data.ship_date_1).toISOString() : null,
       ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
@@ -234,7 +229,7 @@ const AppLayout = () => {
       setSubmitLoading(false);
     }
   };
-  
+
 
   return (
     <div>
@@ -267,7 +262,7 @@ const AppLayout = () => {
                     <li key={index} onClick={() => handleSuggestionClick(product)}>
                        {product.name}
                     </li>
-                 
+
                   ))}
                 </ul>
               )}
