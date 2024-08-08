@@ -33,13 +33,13 @@ const Sales = () => {
         status: order.status,
         shipmentStatus: order.status_of_shipment,
         description: order.comments,
+        total_cost: order.total_cost
       }));
       setLoading(false);
       setOrders(salesOrderData);
     };
     getSalesOrder();
   }, []);
-
 
   const handleOrderHistoryChange = (e) => setOrderHistory(e.target.value);
   const handleSortByChange = (e) => setSortBy(e.target.value);
@@ -90,7 +90,6 @@ const Sales = () => {
     }
     // Filter by search text
     if (searchText) {
-      // setStatusData([])
       filteredOrders = filteredOrders.filter((order) =>
         order.id == searchText
       );
@@ -225,27 +224,27 @@ const Sales = () => {
         </div>
 
         <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-               <th scope="col">S/N</th>
-              <th scope="col">Order #</th>
-              <th scope="col">Order Date</th>
-              <th scope="col">Client Details</th>
-              <th scope="col">Order Details</th>
-              <th scope="col">Product Total</th>
-              <th scope="col">Status</th>
-
-              <th scope="col">Shipment Status</th>
-              <th scope="col">Shipment Date</th>
-            </tr>
-          </thead>
-          <tbody>
+        <thead className="table-light">
+          <tr>
+            {/* <th scope="col">S/N</th> */}
+            <th scope="col">Sales Order #</th>
+            <th scope="col">Order Date</th>
+            <th scope="col">Client Name</th>
+            <th scope="col">Order Details</th>
+            <th scope="col">Product Total</th>
+            <th scope="col">Operation Status</th>
+            <th scope="col">Shipment Status</th>
+            <th scope="col">Shipment Date</th>
+          </tr>
+        </thead>
+        <tbody>
           {loading ? <div>Loading...</div> : ''}
-            {filterOrders(orders).map((order, index) => (
-              <OrderItem key={order.id} order={order} index={index} />
-            ))}
-          </tbody>
-        </table>
+          {filterOrders(orders).map((order, index) => (
+            <OrderItem key={order.id} order={order} index={index} />
+          ))}
+        </tbody>
+      </table>
+
       </div>
     </div>
     </div>

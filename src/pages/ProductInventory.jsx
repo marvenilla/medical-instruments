@@ -350,7 +350,7 @@ const ProductInventory = () => {
           />
         </div>
 
-        <button onClick={handleAddProduct}>Add Product</button>
+        <button className="add-product-button" onClick={handleAddProduct}>Add Product</button>
       </div>
 
       <div className="list-container">
