@@ -5,6 +5,8 @@
  * @returns 
  */
 export const daysBetween = (stringDate1, stringDate2) => {
+  if(!stringDate1 || !stringDate2) return "";
+  console.log({stringDate1, stringDate2});
   const date1 = new Date(stringDate1);
   const date2 = new Date(stringDate2);
   date1.setHours(0, 0, 0, 0);
