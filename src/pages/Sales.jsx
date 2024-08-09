@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import PageNav from "../components/PageNav";
 import OrderItem from "../components/OrderItem";
@@ -28,8 +27,8 @@ const Sales = () => {
         date: order.order_date,
         client: order.client,
         shipmentDate: order.date_of_ship,
-        order_details: order.order_details,
-        amount: order.amount,
+        ordered_products: order.ordered_products,
+        amount: order.total_cost,
         status: order.status,
         shipmentStatus: order.status_of_shipment,
         description: order.comments,
@@ -39,7 +38,6 @@ const Sales = () => {
     };
     getSalesOrder();
   }, []);
-
 
   const handleOrderHistoryChange = (e) => setOrderHistory(e.target.value);
   const handleSortByChange = (e) => setSortBy(e.target.value);
@@ -90,7 +88,6 @@ const Sales = () => {
     }
     // Filter by search text
     if (searchText) {
-      // setStatusData([])
       filteredOrders = filteredOrders.filter((order) =>
         order.id == searchText
       );
@@ -117,137 +114,177 @@ const Sales = () => {
     return filteredOrders;
   };
 
+  const handleDelete = async (salesId) => {
+    try {
+      const { error: productError } = await supabase
+        .from("SalesProduct")
+        .delete()
+        .eq("sales_id", salesId);
+
+      if (productError) throw productError;
+
+      const { error: orderError } = await supabase
+        .from("SalesOrder")
+        .delete()
+        .eq("sales_id", salesId);
+
+      if (orderError) throw orderError;
+
+      setOrders(orders.filter(order => order.id !== salesId));
+
+      alert("Order and associated products deleted successfully");
+    } catch (error) {
+      console.error("Error deleting the order:", error.message);
+      alert("An unexpected error occurred while deleting the order.");
+    }
+  };
+
   return (
     <div>
       <PageNav />
       <div className="d-flex justify-content-center align-items-center mt-4">
-      <div className="container fs-4" style={{ maxWidth: '1200px' }}>
-        <h2 className="mb-4">SALES ORDER</h2>
-        <div className="row mb-3">
-          <div className="col-md-6">
-            <label htmlFor="orderHistory" className="form-label">
-              Order History
-            </label>
-            <select
-              id="orderHistory"
-              onChange={handleOrderHistoryChange}
-              value={orderHistory}
-              className="form-select fs-4"
-            >
-              <option value="30 days">30 days of order history</option>
-              <option value="60 days">60 days of order history</option>
-              <option value="90 days">90 days of order history</option>
-            </select>
+        <div className="container fs-4" style={{ maxWidth: '1200px' }}>
+          <h2 className="mb-4">SALES ORDER</h2>
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <label htmlFor="orderHistory" className="form-label">
+                Order History
+              </label>
+              <select
+                id="orderHistory"
+                onChange={handleOrderHistoryChange}
+                value={orderHistory}
+                className="form-select fs-4"
+              >
+                <option value="30 days">30 days of order history</option>
+                <option value="60 days">60 days of order history</option>
+                <option value="90 days">90 days of order history</option>
+              </select>
+            </div>
+            <div className="col-md-6">
+              <label htmlFor="sortBy" className="form-label">
+                Sort By
+              </label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={handleSortByChange}
+                className="form-select fs-4"
+              >
+                <option>Order Date (Newest)</option>
+                <option>Order Date (Oldest)</option>
+                <option>Amount (High to Low)</option>
+                <option>Amount (Low to High)</option>
+              </select>
+            </div>
           </div>
-          <div className="col-md-6">
-            <label htmlFor="sortBy" className="form-label">
-              Sort By
-            </label>
-            <select
-              id="sortBy"
-              value={sortBy}
-              onChange={handleSortByChange}
-              className="form-select fs-4"
-            >
-              <option>Order Date (Newest)</option>
-              <option>Order Date (Oldest)</option>
-              <option>Amount (High to Low)</option>
-              <option>Amount (Low to High)</option>
-            </select>
-          </div>
-        </div>
 
-        <div className="row mb-3 align-items-center">
-          <div className="col-md-6 d-flex">
-            <input
-              type="text"
-              value={searchText}
-              onChange={handleSearchTextChange}
-              className="form-control me-2 fs-4"
-              placeholder="Find by order number"
-            />
-            <button className="btn btn-primary fs-4" type="button">
-              <i className="fas fa-search"></i> Find
-            </button>
-          </div>
-          <div className="col-md-6 d-flex flex-wrap justify-content-end">
-            <button
-              type="button"
-              onClick={() => filterByStatus("All")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              All ({orders.length})
-            </button>
+          <div className="row mb-3 align-items-center">
+            <div className="col-md-6 d-flex">
+              <input
+                type="text"
+                value={searchText}
+                onChange={handleSearchTextChange}
+                className="form-control me-2 fs-4"
+                placeholder="Find by order number"
+              />
+              <button className="btn btn-primary fs-4" type="button">
+                <i className="fas fa-search"></i> Find
+              </button>
+            </div>
+            <div className="col-md-6 d-flex flex-wrap justify-content-end">
+              <button
+                type="button"
+                onClick={() => filterByStatus("All")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                All ({orders.length})
+              </button>
 
-            <button
+              <button
+                type="button"
+                onClick={() => filterByStatus("Work Order - Initial")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Work Order - Initial ({statusCounts["Work Order - Initial"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Work Order - Secondary")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Work Order - Secondary ({statusCounts["Work Order - Secondary"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Purchasing")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Purchasing ({statusCounts["Purchasing"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Incoming")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Incoming ({statusCounts["Incoming"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Quality")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Quality ({statusCounts["Quality"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Kitting")}
+                className="btn btn-outline-secondary me-2 mb-2"
+              >
+                Kitting ({statusCounts["Kitting"] || 0})
+              </button>
+              <button
+                type="button"
+                onClick={() => filterByStatus("Production")}
+                className="btn btn-outline-secondary mb-2"
+              >
+                Production ({statusCounts["Production"] || 0})
+              </button>
+              <button
               type="button"
-              onClick={() => filterByStatus("Work Order")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              Work Orders ({statusCounts["Work Order"] || 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => filterByStatus("Purchasing")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              Purchasing ({statusCounts["Purchasing"] || 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => filterByStatus("Incoming")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              Incoming ({statusCounts["Incoming"] || 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => filterByStatus("Quality")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              Quality ({statusCounts["Quality"] || 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => filterByStatus("Kitting")}
-              className="btn btn-outline-secondary me-2 mb-2"
-            >
-              Kitting ({statusCounts["Kitting"] || 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => filterByStatus("Production")}
+              onClick={() => filterByStatus("Shipping")}
               className="btn btn-outline-secondary mb-2"
             >
-              Production ({statusCounts["Production"] || 0})
+              Shipping ({statusCounts["Shipping"] || 0})
             </button>
+
+            </div>
           </div>
+
+          <table className="table table-bordered">
+            <thead className="table-light">
+              <tr>
+                <th scope="col">Sales Order #</th>
+                <th scope="col">Order Date</th>
+                <th scope="col">Client Name</th>
+                <th scope="col">Ordered Products</th>
+                <th scope="col">Product Total</th>
+                <th scope="col">Operation Status</th>
+                <th scope="col">Shipment Status</th>
+                <th scope="col">Shipment Date</th>
+                <th scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? <div>Loading...</div> : ''}
+              {filterOrders(orders).map((order, index) => (
+                <OrderItem key={order.id} order={order} index={index} onDelete={handleDelete} />
+              ))}
+            </tbody>
+          </table>
+
         </div>
-
-        <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-               <th scope="col">S/N</th>
-              <th scope="col">Order #</th>
-              <th scope="col">Order Date</th>
-              <th scope="col">Client Details</th>
-              <th scope="col">Order Details</th>
-              <th scope="col">Product Total</th>
-              <th scope="col">Status</th>
-
-              <th scope="col">Shipment Status</th>
-              <th scope="col">Shipment Date</th>
-            </tr>
-          </thead>
-          <tbody>
-          {loading ? <div>Loading...</div> : ''}
-            {filterOrders(orders).map((order, index) => (
-              <OrderItem key={order.id} order={order} index={index} />
-            ))}
-          </tbody>
-        </table>
       </div>
-    </div>
     </div>
   );
 };

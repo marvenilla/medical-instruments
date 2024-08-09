@@ -1,20 +1,23 @@
-/* eslint-disable react/prop-types */
 import PropTypes from "prop-types";
 import "./OrderItem.css";
 import { Link } from "react-router-dom";
 
-const OrderItem = ({ order, index }) => {
+const OrderItem = ({ order, onDelete }) => {
   return (
     <tr>
-      <td>{index + 1}</td>
       <td><Link to={`/sales-order-details/${order.id}`}>{order.id}</Link></td>
       <td>{order.date}</td>
       <td>{order.client}</td>
-      <td>{order.description}</td>
+      <td>{order.ordered_products}</td>
       <td>CAD {order.amount ? order.amount.toFixed(2) : "0.00"}</td>
       <td className={`status ${order.status?.toLowerCase()}`}>{order.status}</td>
       <td>{order.shipmentStatus}</td>
       <td>{order.shipmentDate}</td>
+      <td>
+        <button className="sales-delete-button" onClick={() => onDelete(order.id)}>
+          Delete
+        </button>
+      </td>
     </tr>
   );
 };
@@ -27,10 +30,11 @@ OrderItem.propTypes = {
     status: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     client: PropTypes.string.isRequired,
+    ordered_products: PropTypes.string,
     shipmentStatus: PropTypes.string.isRequired,
     shipmentDate: PropTypes.string.isRequired,
   }).isRequired,
-  index: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default OrderItem;
