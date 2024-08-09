@@ -192,7 +192,7 @@ const Sales = () => {
                 <i className="fas fa-search"></i> Find
               </button>
             </div>
-            <div className="col-md-6 d-flex flex-wrap justify-content-end">
+            <div className="col-md-6 d-flex flex-wrap justify-content-center">
               <button
                 type="button"
                 onClick={() => filterByStatus("All")}
