@@ -6,6 +6,7 @@ import { supabase } from "../supabase";
 import { useForm } from "react-hook-form";
 import { Modal, Button } from 'react-bootstrap';
 import './AppLayout.module.css';
+import { daysBetween, formatDate } from "../helpers";
 
 const AppLayout = () => {
   const [values, setValues] = useState({
@@ -22,14 +23,23 @@ const AppLayout = () => {
     subject_to_shelf_life: "",
     quantity: "",
     order_quantity: "",
-    bal_due: "",
+    balance_due: "",
+    price: "",
   });
   const [suggestions, setSuggestions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const { register, reset, handleSubmit } = useForm();
+  const { register, reset, handleSubmit, watch } = useForm();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [totalCost, setTotalCost] = useState(0); // State for total cost
+
+  let shippedOnTime = '';
+  const dateOfShipment = watch("date_of_ship");
+  const shipDate1 = watch("ship_date_1");
+  if(dateOfShipment && shipDate1) {
+    shippedOnTime = dateOfShipment <= shipDate1 ? 'Yes' : 'No';
+  }
 
   useEffect(() => {
     const getNextSalesId = async () => {
@@ -58,6 +68,10 @@ const AppLayout = () => {
     fetchProducts();
   }, []);
 
+  const calculateTotalCost = (products) => {
+    return products.reduce((acc, p) => acc + (p.price * p.order_quantity), 0);
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCurrentProduct({ ...currentProduct, [name]: value });
@@ -77,7 +91,8 @@ const AppLayout = () => {
           subject_to_shelf_life: product.subject_to_shelf_life,
           quantity: product.quantity,
           order_quantity: currentProduct.order_quantity,
-          bal_due: product.quantity - currentProduct.order_quantity,
+          balance_due: product.quantity - currentProduct.order_quantity,
+          price: product.price,
         });
       } else {
         setCurrentProduct({
@@ -89,7 +104,8 @@ const AppLayout = () => {
           subject_to_shelf_life: "",
           quantity: "",
           order_quantity: "",
-          bal_due: "",
+          balance_due: "",
+          price: "",
         });
       }
     }
@@ -98,7 +114,17 @@ const AppLayout = () => {
       const product = products.find((p) => p.name === currentProduct.product_name);
       if (product) {
         const balanceDue = product.quantity - value;
-        setCurrentProduct({ ...currentProduct, bal_due: balanceDue, order_quantity: value });
+        setCurrentProduct({ ...currentProduct, balance_due: balanceDue, order_quantity: value });
+
+        // Update the order quantity in the selected products
+        const updatedProducts = selectedProducts.map((p) =>
+          p.product_name === currentProduct.product_name ? { ...p, order_quantity: value } : p
+        );
+        setSelectedProducts(updatedProducts);
+
+        // Recalculate the total cost
+        const newTotalCost = calculateTotalCost(updatedProducts);
+        setTotalCost(newTotalCost);
       }
     }
   };
@@ -113,7 +139,8 @@ const AppLayout = () => {
       subject_to_shelf_life: product.subject_to_shelf_life,
       quantity: product.quantity,
       order_quantity: currentProduct.order_quantity,
-      bal_due: product.quantity - currentProduct.order_quantity,
+      balance_due: product.quantity - currentProduct.order_quantity,
+      price: product.price,
     });
     setSuggestions([]);
   };
@@ -122,13 +149,25 @@ const AppLayout = () => {
     const product = products.find((p) => p.name === currentProduct.product_name);
     if (product) {
       const updatedProduct = {
-        ...product,
+        id: null,
+        name: currentProduct.product_name,
+        sku: product.sku,
+        family: product.family,
+        sub_family: product.sub_family,
+        subject_to_shelf_life: product.subject_to_shelf_life,
+        quantity: product.quantity,
         order_quantity: currentProduct.order_quantity,
-        bal_due: currentProduct.bal_due,
+        balance_due: currentProduct.balance_due,
+        price: currentProduct.price,
       };
       const newSelectedProducts = [...selectedProducts, updatedProduct];
-      console.log('Adding product to selectedProducts:', newSelectedProducts); // Debug message
+      console.log('Adding product to selectedProducts:', newSelectedProducts);
       setSelectedProducts(newSelectedProducts);
+
+      // Recalculate the total cost
+      const newTotalCost = calculateTotalCost(newSelectedProducts);
+      setTotalCost(newTotalCost);
+
       setCurrentProduct({
         id: null,
         product_name: "",
@@ -138,7 +177,8 @@ const AppLayout = () => {
         subject_to_shelf_life: "",
         quantity: "",
         order_quantity: "",
-        bal_due: "",
+        balance_due: "",
+        price: "",
       });
     } else {
       console.log("Product not found");
@@ -157,25 +197,35 @@ const AppLayout = () => {
       subject_to_shelf_life: productToEdit.subject_to_shelf_life,
       quantity: productToEdit.quantity,
       order_quantity: productToEdit.order_quantity || '',
-      bal_due: productToEdit.bal_due || '',
+      balance_due: productToEdit.balance_due || '',
+      price: productToEdit.price || '',
     });
     setShowModal(true);
   };
 
   const handleDeleteProduct = (index) => {
     const updatedProducts = selectedProducts.filter((_, i) => i !== index);
-    console.log('Deleting product from selectedProducts:', updatedProducts); // Debug message
+    console.log('Deleting product from selectedProducts:', updatedProducts);
     setSelectedProducts(updatedProducts);
+
+    // Recalculate the total cost
+    const newTotalCost = calculateTotalCost(updatedProducts);
+    setTotalCost(newTotalCost);
   };
 
   const handleModalSave = () => {
     const updatedProducts = [...selectedProducts];
     updatedProducts[editIndex] = {
       ...currentProduct,
-      name: currentProduct.product_name, // Ensure name is updated
+      name: currentProduct.product_name,
     };
-    console.log('Updating product in selectedProducts:', updatedProducts); // Debug message
+    console.log('Updating product in selectedProducts:', updatedProducts);
     setSelectedProducts(updatedProducts);
+
+    // Recalculate the total cost
+    const newTotalCost = calculateTotalCost(updatedProducts);
+    setTotalCost(newTotalCost);
+
     setShowModal(false);
     setCurrentProduct({
       id: null,
@@ -186,7 +236,8 @@ const AppLayout = () => {
       subject_to_shelf_life: "",
       quantity: "",
       order_quantity: "",
-      bal_due: "",
+      balance_due: "",
+      price: "",
     });
     setEditIndex(null);
   };
@@ -199,26 +250,37 @@ const AppLayout = () => {
       ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
       date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
       date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
-      total_cost: data.total_cost || 0,
+      total_cost: totalCost || 0,  // Store the calculated total cost
       status: data.status || "Pending",
       currency: "CAD",
     };
     try {
       setSubmitLoading(true);
-      const { error } = await supabase
+      const { data: salesOrderData, error: salesOrderError } = await supabase
         .from("SalesOrder")
         .insert([sanitizedData])
         .select();
-      if (error) throw error;
-      // const salesOrderId = salesOrderData[0].sales_id;
-      // const productsToSave = selectedProducts.map((product) => ({
-      //   sales_order_id: salesOrderId,
-      //   ...product,
-      // }));
-      // const { error: productError } = await supabase
-      //   .from("SalesOrderItems")
-      //   .insert(productsToSave);
-      // if (productError) throw productError;
+      if (salesOrderError) throw salesOrderError;
+
+      const salesOrderId = salesOrderData[0].sales_id;
+      const productsToSave = selectedProducts.map((product) => ({
+        sales_id: salesOrderId,
+        product_name: product.name,
+        sku: product.sku,
+        family: product.family,
+        sub_family: product.sub_family,
+        subject_to_shelf_life: product.subject_to_shelf_life,
+        price: product.price,
+        order_quantity: product.order_quantity,
+        balance_due: product.balance_due,
+      }));
+
+      const { error: productsError } = await supabase
+        .from("SalesProduct")
+        .insert(productsToSave);
+
+      if (productsError) throw productsError;
+
       alert("Sales order and products saved successfully");
       reset();
       setSubmitLoading(false);
@@ -229,7 +291,6 @@ const AppLayout = () => {
       setSubmitLoading(false);
     }
   };
-
 
   return (
     <div>
@@ -260,9 +321,8 @@ const AppLayout = () => {
                 <ul>
                   {suggestions.map((product, index) => (
                     <li key={index} onClick={() => handleSuggestionClick(product)}>
-                       {product.name}
+                      {product.name}
                     </li>
-
                   ))}
                 </ul>
               )}
@@ -299,10 +359,17 @@ const AppLayout = () => {
               onChange={handleInputChange}
             />
             <Input
-              name="bal_due"
-              label="Bal due"
+              name="balance_due"
+              label="Balance due"
               disabled
-              value={currentProduct.bal_due}
+              value={currentProduct.balance_due}
+              onChange={handleInputChange}
+            />
+            <Input
+              name="price"
+              label="Price"
+              disabled
+              value={currentProduct.price}
               onChange={handleInputChange}
             />
             <button className="btn btn-primary fs-4" type="button" onClick={handleAddProduct}>
@@ -318,6 +385,7 @@ const AppLayout = () => {
                   <th>Subject to Shelf Life</th>
                   <th>Order Quantity</th>
                   <th>Balance Due</th>
+                  <th>Price</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -330,7 +398,8 @@ const AppLayout = () => {
                     <td>{product.sub_family}</td>
                     <td>{product.subject_to_shelf_life}</td>
                     <td>{product.order_quantity}</td>
-                    <td>{product.bal_due}</td>
+                    <td>{product.balance_due}</td>
+                    <td>{product.price}</td>
                     <td>
                       <button type="button" onClick={() => handleEditProduct(index)}>Edit</button>
                       <button onClick={() => handleDeleteProduct(index)}>Delete</button>
@@ -339,6 +408,9 @@ const AppLayout = () => {
                 ))}
               </tbody>
             </table>
+            <div className="mt-4">
+              <h4>Total Cost: CAD {totalCost.toFixed(2)}</h4> {/* Display the total cost */}
+            </div>
             <hr className="hr my-4" />
             <h2 className="mt-4" style={{ fontWeight: "bold" }}>
               Shipment
@@ -370,6 +442,7 @@ const AppLayout = () => {
                 <Input
                   label="Count days to sched date 1"
                   disabled={true}
+                  value={daysBetween(watch("ship_date_1"), formatDate(new Date()))}
                   defaultValue=""
                 />
               </div>
@@ -388,6 +461,7 @@ const AppLayout = () => {
                 <Input
                   label="Count days to sched date 2"
                   disabled={true}
+                  value={daysBetween(watch("ship_date_2"), formatDate(new Date()))}
                   defaultValue=""
                 />
               </div>
@@ -418,9 +492,10 @@ const AppLayout = () => {
             <Input
               label="Lead Time (from order to shipping)"
               disabled={true}
+              value={daysBetween(watch("date_of_ship"), watch("order_date"))}
               defaultValue=""
             />
-            <Input label="Shipped on time?" disabled={true} defaultValue="" />
+            <Input label="Shipped on time?" disabled={true} defaultValue="" value={shippedOnTime} />
             <Dropdown
               label="Status of shipment"
               register={register}
@@ -438,8 +513,11 @@ const AppLayout = () => {
               label="Transit time (from shipment to delivery)"
               disabled={true}
               defaultValue=""
+              value={daysBetween(watch("date_of_arrival"), watch("date_of_ship"))}
             />
-            <Input label="Total time" disabled={true} defaultValue="" />
+            <Input label="Total time" disabled={true} defaultValue="" 
+              value={daysBetween(watch("date_of_arrival"), watch("order_date"))}
+            />
             <Input
               register={register}
               name="comments"
@@ -495,12 +573,22 @@ const AppLayout = () => {
             />
           </div>
           <div className="form-group">
-            <label className="product-label">Bal due</label>
+            <label className="product-label">Balance due</label>
             <input
               className="product-input"
               type="text"
-              name="bal_due"
-              value={currentProduct.bal_due}
+              name="balance_due"
+              value={currentProduct.balance_due}
+              disabled
+            />
+          </div>
+          <div className="form-group">
+            <label className="product-label">Price</label>
+            <input
+              className="product-input"
+              type="text"
+              name="price"
+              value={currentProduct.price}
               disabled
             />
           </div>
