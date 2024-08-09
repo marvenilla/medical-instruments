@@ -43,3 +43,20 @@
 .order-status.canceled {
   color: red;
 }
+
+.sales-delete-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  margin-right: 4px;
+}
+
+.sales-delete-button:hover {
+  background-color: #bd0615;
+}

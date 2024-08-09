@@ -260,6 +260,8 @@ const SalesOrderDetails = () => {
   };
 
   const handleSave = async (data) => {
+    const orderedProducts = selectedProducts.map(product => product.product_name).join(', ');
+
     const sanitizedData = {
       ...data,
       order_date: data.order_date ? new Date(data.order_date).toISOString() : new Date().toISOString(),
@@ -268,9 +270,11 @@ const SalesOrderDetails = () => {
       date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
       date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
       total_cost: salesOrderData.total_cost || 0,
+      ordered_products: orderedProducts || '',
       status: data.status || "Pending",
       currency: "CAD",
     };
+
     try {
       setUpdateLoading(true);
       const { data: salesOrderData, error: salesOrderError } = await supabase
@@ -569,7 +573,7 @@ const SalesOrderDetails = () => {
               label="Status of shipment"
               register={register}
               name="status_of_shipment"
-              options={["", "Delayed", "On the way", "Delivered"]}
+              options={["", "Delayed", "On the way", "Delivered", "Not applicable"]}
             />
             <Input
               register={register}

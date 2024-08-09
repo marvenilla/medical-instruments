@@ -6,6 +6,7 @@ import { supabase } from "../supabase";
 import { useForm } from "react-hook-form";
 import { Modal, Button } from 'react-bootstrap';
 import './AppLayout.module.css';
+import { daysBetween, formatDate } from "../helpers";
 
 const AppLayout = () => {
   const [values, setValues] = useState({
@@ -27,11 +28,19 @@ const AppLayout = () => {
   });
   const [suggestions, setSuggestions] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const { register, reset, handleSubmit } = useForm();
+  const { register, reset, handleSubmit, watch } = useForm();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-  const [totalCost, setTotalCost] = useState(0); // State for total cost
+  const [totalCost, setTotalCost] = useState(0);
+
+  let shippedOnTime = '';
+  const dateOfShipment = watch("date_of_ship");
+  const shipDate1 = watch("ship_date_1");
+
+  if(dateOfShipment && shipDate1) {
+    shippedOnTime = new Date(dateOfShipment) <= new Date(shipDate1) ? 'Yes' : 'No';
+  }
 
   useEffect(() => {
     const getNextSalesId = async () => {
@@ -153,12 +162,18 @@ const AppLayout = () => {
         price: currentProduct.price,
       };
       const newSelectedProducts = [...selectedProducts, updatedProduct];
-      console.log('Adding product to selectedProducts:', newSelectedProducts);
       setSelectedProducts(newSelectedProducts);
 
       // Recalculate the total cost
       const newTotalCost = calculateTotalCost(newSelectedProducts);
       setTotalCost(newTotalCost);
+
+      // Update ordered_products string
+      const orderedProductsString = newSelectedProducts.map((p) => p.name).join(", ");
+      setValues((prevValues) => ({
+        ...prevValues,
+        ordered_products: orderedProductsString,
+      }));
 
       setCurrentProduct({
         id: null,
@@ -242,19 +257,24 @@ const AppLayout = () => {
       ship_date_2: data.ship_date_2 ? new Date(data.ship_date_2).toISOString() : null,
       date_of_ship: data.date_of_ship ? new Date(data.date_of_ship).toISOString() : null,
       date_of_arrival: data.date_of_arrival ? new Date(data.date_of_arrival).toISOString() : null,
-      total_cost: totalCost || 0,  // Store the calculated total cost
+      total_cost: totalCost || 0,
+      ordered_products: values.ordered_products || '',
       status: data.status || "Pending",
       currency: "CAD",
+      was_ship_on_time: shippedOnTime
     };
+
     try {
       setSubmitLoading(true);
       const { data: salesOrderData, error: salesOrderError } = await supabase
         .from("SalesOrder")
         .insert([sanitizedData])
         .select();
+
       if (salesOrderError) throw salesOrderError;
 
       const salesOrderId = salesOrderData[0].sales_id;
+
       const productsToSave = selectedProducts.map((product) => ({
         sales_id: salesOrderId,
         product_name: product.name,
@@ -282,6 +302,11 @@ const AppLayout = () => {
       console.log("Error creating record in Supabase", error);
       setSubmitLoading(false);
     }
+  };
+
+  const safeCalculateDaysBetween = (date1, date2) => {
+    const result = daysBetween(date1, date2);
+    return isNaN(result) ? "" : result;
   };
 
   return (
@@ -434,6 +459,7 @@ const AppLayout = () => {
                 <Input
                   label="Count days to sched date 1"
                   disabled={true}
+                  value={safeCalculateDaysBetween(watch("ship_date_1"), formatDate(new Date()))}
                   defaultValue=""
                 />
               </div>
@@ -452,6 +478,7 @@ const AppLayout = () => {
                 <Input
                   label="Count days to sched date 2"
                   disabled={true}
+                  value={safeCalculateDaysBetween(watch("ship_date_2"), formatDate(new Date()))}
                   defaultValue=""
                 />
               </div>
@@ -482,14 +509,15 @@ const AppLayout = () => {
             <Input
               label="Lead Time (from order to shipping)"
               disabled={true}
+              value={safeCalculateDaysBetween(watch("date_of_ship"), watch("order_date"))}
               defaultValue=""
             />
-            <Input label="Shipped on time?" disabled={true} defaultValue="" />
+            <Input label="Shipped on time?" disabled={true} defaultValue="" value={shippedOnTime} />
             <Dropdown
               label="Status of shipment"
               register={register}
               name="status_of_shipment"
-              options={["", "Delayed", "On the way", "Delivered"]}
+              options={["", "Delayed", "On the way", "Delivered", "Not Applicable"]}
             />
             <Input
               register={register}
@@ -502,8 +530,11 @@ const AppLayout = () => {
               label="Transit time (from shipment to delivery)"
               disabled={true}
               defaultValue=""
+              value={safeCalculateDaysBetween(watch("date_of_arrival"), watch("date_of_ship"))}
             />
-            <Input label="Total time" disabled={true} defaultValue="" />
+            <Input label="Total time" disabled={true} defaultValue=""
+              value={safeCalculateDaysBetween(watch("date_of_arrival"), watch("order_date"))}
+            />
             <Input
               register={register}
               name="comments"
